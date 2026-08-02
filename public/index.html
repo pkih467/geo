@@ -11,6 +11,11 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     
     <style>
+        * {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
         html, body {
             margin: 0;
             padding: 0;
@@ -18,7 +23,7 @@
             height: 100%;
             overflow: hidden;
             position: fixed;
-            touch-action: none;
+            background: #f0f0f0;
         }
         #map {
             width: 100%;
@@ -26,11 +31,7 @@
             position: absolute;
             top: 0;
             left: 0;
-            touch-action: none;
-            pointer-events: auto;
-        }
-        .leaflet-pane, .leaflet-control {
-            pointer-events: auto !important;
+            z-index: 1;
         }
     </style>
 </head>
@@ -44,7 +45,10 @@
         // Initialize map centered on India
         const map = L.map('map', {
             zoomControl: true,
-            tap: true
+            tap: true,
+            dragging: true,
+            touchZoom: true,
+            scrollWheelZoom: true
         }).setView([20.5937, 78.9629], 5);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -52,10 +56,15 @@
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
 
-        // Fix for iOS touch rendering delay in standalone WebViews
-        setTimeout(() => {
-            map.invalidateSize();
-        }, 100);
+        // Force resize recalculation for iOS standalone viewport
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                map.invalidateSize();
+            }, 200);
+        });
+
+        // Additional fallback for iOS touch event blockages
+        document.addEventListener('touchstart', function() {}, {passive: true});
     </script>
 </body>
 </html>
