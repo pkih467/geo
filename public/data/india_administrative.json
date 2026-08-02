@@ -1,1 +1,21 @@
-
+{
+  "states": {
+    "Maharashtra": {
+      "lat": 19.7515, "lng": 75.7139,
+      "districts": {
+        "Pune": {
+          "lat": 18.5204, "lng": 73.8567,
+          "talukas": {
+            "Haveli": {
+              "lat": 18.52, "lng": 73.9,
+              "villages": [
+                { "name": "Wagholi", "lat": 18.5793, "lng": 73.9644 },
+                { "name": "Manjari", "lat": 18.5268, "lng": 73.9515 }
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}
