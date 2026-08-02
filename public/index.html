@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Gujarat Campaign Map</title>
-    <!-- Leaflet Map CSS Styling -->
+    <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         body, html {
@@ -18,10 +18,7 @@
             width: 100%;
             z-index: 1;
         }
-        /* Enlarged UI Control Panel */
-        .leaflet-top.leaflet-right {
-            margin: 20px;
-        }
+        /* Dropdown Control Panel Styling */
         .campaign-panel {
             background: white;
             padding: 20px;
@@ -54,12 +51,12 @@
 </head>
 <body>
 
-    <!-- The Map Canvas -->
+    <!-- Map Canvas -->
     <div id="map"></div>
 
-    <!-- Floating UI Control Panel -->
-    <div id="ui-container" style="display: none;">
-        <div class="campaign-panel">
+    <!-- UI Panel (Hidden initially so Leaflet can host it safely) -->
+    <div style="display: none;">
+        <div id="ui-container" class="campaign-panel">
             <h3>Gujarat Campaign Control</h3>
             
             <label for="district-select">District</label>
@@ -79,9 +76,9 @@
         </div>
     </div>
 
-    <!-- Leaflet JavaScript Library -->
+    <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <!-- Your Map Loader Script -->
+    <!-- Map Logic -->
     <script src="map-loader.js"></script>
 </body>
 </html>
