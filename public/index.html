@@ -6,7 +6,6 @@
     <!-- Leaflet Map CSS Styling -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-           <style>
         body, html {
             margin: 0;
             padding: 0;
@@ -52,15 +51,13 @@
             background-color: #fff;
         }
     </style>
-
-    </style>
 </head>
 <body>
 
     <!-- The Map Canvas -->
     <div id="map"></div>
 
-    <!-- Floating UI Panel injected directly into Leaflet's control system -->
+    <!-- Floating UI Control Panel -->
     <div id="ui-container" style="display: none;">
         <div class="campaign-panel">
             <h3>Gujarat Campaign Control</h3>
@@ -86,16 +83,5 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <!-- Your Map Loader Script -->
     <script src="map-loader.js"></script>
-    
-    <script>
-        // Move the floating panel onto the top right of the map automatically
-        var uiDiv = document.getElementById('ui-container');
-        uiDiv.style.display = 'block';
-        var customControl = L.Control.extend({
-            options: { position: 'topright' },
-            onAdd: function () { return uiDiv; }
-        });
-        // This will be handled once map-loader runs, but keeps the HTML self-contained
-    </script>
 </body>
 </html>
