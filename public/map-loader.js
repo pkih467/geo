@@ -82,10 +82,12 @@ document.addEventListener("DOMContentLoaded", function() {
 
                 if (taluka.lat && taluka.lng) {
                     var marker = L.marker([taluka.lat, taluka.lng]).bindPopup("<b>Taluka:</b> " + talukaName);
+                    
+                    // Clean click handler without recursive event triggering
                     marker.on('click', (function(tName) {
                         return function() {
                             talukaSelect.value = tName;
-                            talukaSelect.dispatchEvent(new Event('change'));
+                            loadTaluka(districtName, tName);
                         };
                     })(talukaName));
                     
@@ -101,11 +103,11 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 
-    // 6. Handle Taluka Selection Changes
-    document.getElementById('taluka-select').addEventListener('change', function() {
-        var districtName = document.getElementById('district-select').value;
-        var talukaName = this.value;
+    // Reusable function to load Taluka data smoothly without lag
+    function loadTaluka(districtName, talukaName) {
+        var talukaSelect = document.getElementById('taluka-select');
         var villageSelect = document.getElementById('village-select');
+        talukaSelect.value = talukaName;
 
         villageSelect.innerHTML = '<option value="">-- Select Village/Panchayat --</option>';
         villageSelect.disabled = true;
@@ -129,10 +131,11 @@ document.addEventListener("DOMContentLoaded", function() {
 
                     if (village && village.lat && village.lng) {
                         var marker = L.marker([village.lat, village.lng]).bindPopup("<b>Village/Panchayat:</b> " + villageName);
+                        
                         marker.on('click', (function(vName) {
                             return function() {
                                 villageSelect.value = vName;
-                                villageSelect.dispatchEvent(new Event('change'));
+                                loadVillage(districtName, talukaName, vName);
                             };
                         })(villageName));
 
@@ -152,13 +155,19 @@ document.addEventListener("DOMContentLoaded", function() {
             }
             villageSelect.innerHTML = '<option value="">-- No Village Nodes Added Yet --</option>';
         }
+    }
+
+    // 6. Handle Taluka Selection Changes via Dropdown
+    document.getElementById('taluka-select').addEventListener('change', function() {
+        var districtName = document.getElementById('district-select').value;
+        var talukaName = this.value;
+        loadTaluka(districtName, talukaName);
     });
 
-    // 7. Handle Village Selection Changes (Deep Zoom)
-    document.getElementById('village-select').addEventListener('change', function() {
-        var districtName = document.getElementById('district-select').value;
-        var talukaName = document.getElementById('taluka-select').value;
-        var villageName = this.value;
+    // Reusable function for village selection
+    function loadVillage(districtName, talukaName, villageName) {
+        var villageSelect = document.getElementById('village-select');
+        villageSelect.value = villageName;
 
         if (!villageName) return;
 
@@ -178,5 +187,13 @@ document.addEventListener("DOMContentLoaded", function() {
                 }
             });
         }
+    }
+
+    // 7. Handle Village Selection Changes via Dropdown
+    document.getElementById('village-select').addEventListener('change', function() {
+        var districtName = document.getElementById('district-select').value;
+        var talukaName = document.getElementById('taluka-select').value;
+        var villageName = this.value;
+        loadVillage(districtName, talukaName, villageName);
     });
 });
