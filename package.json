@@ -1,7 +1,7 @@
 {
-  "name": "geospatial-db-india",
+  "name": "geo-pwa",
   "version": "1.0.0",
-  "description": "Offline-first India administrative drill-down map app",
+  "description": "Offline-first geospatial PWA for iOS",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
