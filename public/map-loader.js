@@ -1,28 +1,24 @@
 document.addEventListener("DOMContentLoaded", function() {
-    // 1. Initialize the map with optimized tile buffering to prevent blank surrounding areas
+    // 1. Initialize map centered on Gujarat with English labels forced via subdomains/params
     var map = L.map('map', {
         maxZoom: 19,
-        minZoom: 7,
-        fadeAnimation: false,
-        zoomAnimation: false,
-        markerZoomAnimation: false
+        minZoom: 7
     }).setView([22.2587, 71.1924], 7);
 
-    // 2. Add the background map tiles with an extended buffer to load surrounding tiles smoothly
+    // 2. Add English-labeled OpenStreetMap tiles
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
-        minZoom: 7,
-        keepBuffer: 8,
-        updateWhenIdle: false,
-        updateWhenZooming: false,
         attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
 
-    // 3. Attach the floating HTML panel to the top right of the map interface
+    // 3. Mount the Dropdown Panel securely onto the Top-Right of the map
     var PanelControl = L.Control.extend({
         options: { position: 'topright' },
         onAdd: function() {
-            return document.getElementById('ui-container');
+            var container = document.getElementById('ui-container');
+            // Prevent map clicks from triggering when clicking inside the panel
+            L.DomEvent.disableClickPropagation(container);
+            return container;
         }
     });
     map.addControl(new PanelControl());
@@ -34,7 +30,7 @@ document.addEventListener("DOMContentLoaded", function() {
         currentMarkersLayer.clearLayers();
     }
 
-    // 4. Load your gujarat.json data file automatically
+    // 4. Load your json data file
     fetch('data/states/gujarat.json')
         .then(function(response) {
             if (!response.ok) throw new Error('Could not find gujarat.json file.');
@@ -60,7 +56,7 @@ document.addEventListener("DOMContentLoaded", function() {
             document.getElementById('district-select').innerHTML = '<option value="">Error Loading Data</option>';
         });
 
-    // 5. Handle District Selection Changes
+    // 5. Handle District Selection
     document.getElementById('district-select').addEventListener('change', function() {
         var districtName = this.value;
         var talukaSelect = document.getElementById('taluka-select');
@@ -92,7 +88,6 @@ document.addEventListener("DOMContentLoaded", function() {
                     
                     marker.on('click', (function(tName) {
                         return function() {
-                            talukaSelect.value = tName;
                             loadTaluka(districtName, tName);
                         };
                     })(talukaName));
@@ -109,7 +104,6 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 
-    // Reusable function to load Taluka data
     function loadTaluka(districtName, talukaName) {
         var talukaSelect = document.getElementById('taluka-select');
         var villageSelect = document.getElementById('village-select');
@@ -140,7 +134,6 @@ document.addEventListener("DOMContentLoaded", function() {
                         
                         marker.on('click', (function(vName) {
                             return function() {
-                                villageSelect.value = vName;
                                 loadVillage(districtName, talukaName, vName);
                             };
                         })(villageName));
@@ -163,14 +156,12 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     }
 
-    // 6. Handle Taluka Selection Changes via Dropdown
     document.getElementById('taluka-select').addEventListener('change', function() {
         var districtName = document.getElementById('district-select').value;
         var talukaName = this.value;
         loadTaluka(districtName, talukaName);
     });
 
-    // Reusable function for village selection
     function loadVillage(districtName, talukaName, villageName) {
         var villageSelect = document.getElementById('village-select');
         villageSelect.value = villageName;
@@ -195,7 +186,6 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     }
 
-    // 7. Handle Village Selection Changes via Dropdown
     document.getElementById('village-select').addEventListener('change', function() {
         var districtName = document.getElementById('district-select').value;
         var talukaName = document.getElementById('taluka-select').value;
