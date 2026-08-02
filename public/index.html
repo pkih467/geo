@@ -3,41 +3,41 @@ var map = L.map('map').setView([22.2587, 71.1924], 7);
 
 // Add OpenStreetMap tiles
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19,
-    attribution: '&copy; OpenStreetMap contributors'
+    maxZoom: 19,
+    attribution: '&copy; OpenStreetMap contributors'
 }).addTo(map);
 
 // Fetch your custom JSON file
 fetch('data/states/gujarat.json')
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        return response.json();
-    })
-    .then(data => {
-        console.log("Loaded state:", data.state);
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log("Loaded state:", data.state);
 
-        // Loop through each district
-        for (let districtName in data.districts) {
-            let district = data.districts[districtName];
+        // Loop through each district
+        for (let districtName in data.districts) {
+            let district = data.districts[districtName];
 
-            // Loop through each taluka inside the district
-            for (let talukaName in district.talukas) {
-                let taluka = district.talukas[talukaName];
+            // Loop through each taluka inside the district
+            for (let talukaName in district.talukas) {
+                let taluka = district.talukas[talukaName];
 
-                // Add a clickable marker for each taluka
-                let marker = L.marker([taluka.lat, taluka.lng]).addTo(map);
+                // Add a clickable marker for each taluka
+                let marker = L.marker([taluka.lat, taluka.lng]).addTo(map);
 
-                // Click event to zoom in and show info
-                marker.bindPopup(`<b>Taluka:</b> ${talukaName}<br><b>District:</b> ${districtName}<br><b>Code:</b> ${taluka.code}`);
-                
-                marker.on('click', function() {
-                    map.setView([taluka.lat, taluka.lng], 11);
-                });
-            }
-        }
-    })
-    .catch(error => {
-        console.error('Failed to load map data:', error);
-    });
+                // Click event to zoom in and show info
+                marker.bindPopup(`<b>Taluka:</b> ${talukaName}<br><b>District:</b> ${districtName}<br><b>Code:</b> ${taluka.code}`);
+                
+                marker.on('click', function() {
+                    map.setView([taluka.lat, taluka.lng], 11);
+                });
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Failed to load map data:', error);
+    });
