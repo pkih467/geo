@@ -1,13 +1,20 @@
 document.addEventListener("DOMContentLoaded", function() {
-    // 1. Initialize the map centered over Gujarat
+    // 1. Initialize the map with optimized tile buffering to prevent blank surrounding areas
     var map = L.map('map', {
         maxZoom: 19,
-        minZoom: 7
+        minZoom: 7,
+        fadeAnimation: false,
+        zoomAnimation: false,
+        markerZoomAnimation: false
     }).setView([22.2587, 71.1924], 7);
 
-    // 2. Add the background map tiles
+    // 2. Add the background map tiles with an extended buffer to load surrounding tiles smoothly
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
+        minZoom: 7,
+        keepBuffer: 8,
+        updateWhenIdle: false,
+        updateWhenZooming: false,
         attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
 
@@ -83,7 +90,6 @@ document.addEventListener("DOMContentLoaded", function() {
                 if (taluka.lat && taluka.lng) {
                     var marker = L.marker([taluka.lat, taluka.lng]).bindPopup("<b>Taluka:</b> " + talukaName);
                     
-                    // Clean click handler without recursive event triggering
                     marker.on('click', (function(tName) {
                         return function() {
                             talukaSelect.value = tName;
@@ -103,7 +109,7 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 
-    // Reusable function to load Taluka data smoothly without lag
+    // Reusable function to load Taluka data
     function loadTaluka(districtName, talukaName) {
         var talukaSelect = document.getElementById('taluka-select');
         var villageSelect = document.getElementById('village-select');
