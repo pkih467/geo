@@ -1,39 +1,95 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gujarat Campaign Management Map</title>
-    
-    <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
-    
-    <!-- Custom Stylesheet -->
-    <link rel="stylesheet" href="style.css">
-    
-    <style>
-        body, html {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            width: 100%;
-        }
-        #map {
-            height: 100vh;
-            width: 100vw;
-        }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gujarat Campaign Management Map</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+    
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            font-family: Arial, sans-serif;
+        }
+        #map {
+            height: 100vh;
+            width: 100vw;
+        }
+        /* High-visibility larger control panel */
+        #control-panel {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            font-size: 16px;
+        }
+        #control-panel h3 {
+            margin-top: 0;
+            font-size: 20px;
+            color: #333;
+        }
+        #control-panel label {
+            font-weight: bold;
+            color: #444;
+        }
+        #control-panel select {
+            width: 240px;
+            padding: 8px;
+            margin-top: 5px;
+            margin-bottom: 15px;
+            font-size: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+    </style>
 </head>
 <body>
 
-    <!-- Map Container -->
-    <div id="map"></div>
+    <!-- Floating Dropdown Control Panel -->
+    <div id="control-panel">
+        <h3>Campaign Navigation</h3>
+        
+        <label for="state-select">State:</label><br>
+        <select id="state-select">
+            <option value="gujarat">Gujarat</option>
+        </select><br>
 
-    <!-- Leaflet JS Library -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-    
-    <!-- External Map Loader Script -->
-    <script src="map-loader.js"></script>
+        <label for="district-select">District:</label><br>
+        <select id="district-select" disabled>
+            <option value="">-- Select District --</option>
+        </select><br>
+
+        <label for="taluka-select">Taluka:</label><br>
+        <select id="taluka-select" disabled>
+            <option value="">-- Select Taluka --</option>
+        </select><br>
+
+        <label for="village-select">Village:</label><br>
+        <select id="village-select" disabled>
+            <option value="">-- Select Village --</option>
+        </select>
+    </div>
+
+    <!-- Map Container -->
+    <div id="map"></div>
+
+    <!-- Leaflet JS Library -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    
+    <!-- External Map Loader Script -->
+    <script src="map-loader.js"></script>
 
 </body>
 </html>
