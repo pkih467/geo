@@ -2,15 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gujarat Campaign Management Map</title>
-    
-    <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
-    
-    <!-- Custom Stylesheet -->
-    <link rel="stylesheet" href="style.css">
-    
+    <title>Gujarat Campaign Map</title>
+    <!-- Leaflet Map CSS Styling -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         body, html {
             margin: 0;
@@ -21,75 +15,83 @@
         }
         #map {
             height: 100vh;
-            width: 100vw;
+            width: 100%;
+            z-index: 1;
         }
-        /* High-visibility larger control panel */
-        #control-panel {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            z-index: 1000;
-            background: #ffffff;
-            padding: 20px;
+        /* Floating UI Control Panel for State > District > Taluka > Village navigation */
+        .leaflet-top.leaflet-right {
+            margin: 20px;
+        }
+        .campaign-panel {
+            background: white;
+            padding: 15px;
             border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            font-size: 16px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            width: 280px;
         }
-        #control-panel h3 {
-            margin-top: 0;
-            font-size: 20px;
+        .campaign-panel h3 {
+            margin: 0 0 10px 0;
+            font-size: 16px;
             color: #333;
         }
-        #control-panel label {
+        .campaign-panel label {
+            display: block;
+            margin-top: 10px;
+            font-size: 12px;
             font-weight: bold;
-            color: #444;
+            color: #555;
         }
-        #control-panel select {
-            width: 240px;
+        .campaign-panel select {
+            width: 100%;
             padding: 8px;
-            margin-top: 5px;
-            margin-bottom: 15px;
-            font-size: 15px;
+            margin-top: 4px;
             border: 1px solid #ccc;
             border-radius: 4px;
+            font-size: 14px;
         }
     </style>
 </head>
 <body>
 
-    <!-- Floating Dropdown Control Panel -->
-    <div id="control-panel">
-        <h3>Campaign Navigation</h3>
-        
-        <label for="state-select">State:</label><br>
-        <select id="state-select">
-            <option value="gujarat">Gujarat</option>
-        </select><br>
-
-        <label for="district-select">District:</label><br>
-        <select id="district-select" disabled>
-            <option value="">-- Select District --</option>
-        </select><br>
-
-        <label for="taluka-select">Taluka:</label><br>
-        <select id="taluka-select" disabled>
-            <option value="">-- Select Taluka --</option>
-        </select><br>
-
-        <label for="village-select">Village:</label><br>
-        <select id="village-select" disabled>
-            <option value="">-- Select Village --</option>
-        </select>
-    </div>
-
-    <!-- Map Container -->
+    <!-- The Map Canvas -->
     <div id="map"></div>
 
-    <!-- Leaflet JS Library -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-    
-    <!-- External Map Loader Script -->
-    <script src="map-loader.js"></script>
+    <!-- Floating UI Panel injected directly into Leaflet's control system -->
+    <div id="ui-container" style="display: none;">
+        <div class="campaign-panel">
+            <h3>Gujarat Campaign Control</h3>
+            
+            <label for="district-select">District</label>
+            <select id="district-select" disabled>
+                <option value="">-- Loading Districts --</option>
+            </select>
 
+            <label for="taluka-select">Taluka</label>
+            <select id="taluka-select" disabled>
+                <option value="">-- Select District First --</option>
+            </select>
+
+            <label for="village-select">Village / Panchayat</label>
+            <select id="village-select" disabled>
+                <option value="">-- Select Taluka First --</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Leaflet JavaScript Library -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- Your Map Loader Script -->
+    <script src="map-loader.js"></script>
+    
+    <script>
+        // Move the floating panel onto the top right of the map automatically
+        var uiDiv = document.getElementById('ui-container');
+        uiDiv.style.display = 'block';
+        var customControl = L.Control.extend({
+            options: { position: 'topright' },
+            onAdd: function () { return uiDiv; }
+        });
+        // This will be handled once map-loader runs, but keeps the HTML self-contained
+    </script>
 </body>
 </html>
