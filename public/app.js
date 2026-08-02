@@ -55,8 +55,9 @@ uiControl.onAdd = function (map) {
         </div>
     `;
     
-    // Prevent map click events from triggering underneath the UI box on touch devices
+    // Prevent map click events from triggering underneath the UI box on touch devices and desktop
     L.DomEvent.disableClickPropagation(div);
+    L.DomEvent.disableScrollPropagation(div);
     return div;
 };
 uiControl.addTo(map);
@@ -85,7 +86,12 @@ function loadState(stateKey) {
 
     // Fetch the state file dynamically
     fetch(config.file)
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
         .then(data => {
             administrativeData = data;
             
@@ -102,18 +108,27 @@ function loadState(stateKey) {
                     fillOpacity: 0.15
                 },
                 onEachFeature: function (feature, layer) {
-                    let name = feature.properties.name || feature.properties.DISTRICT || "Region";
+                    let props = feature.properties || {};
+                    let name = props.name || props.NAME || props.DISTRICT || props.district || "Region";
                     layer.bindPopup("<b>" + name + "</b>");
                     
                     layer.on('click', function (e) {
                         layer.openPopup();
-                        console.log("Clicked feature:", name);
                     });
                 }
             }).addTo(map);
 
-            // Center map on the state bounds or config view
-            map.fitBounds(currentGeoJsonLayer.getBounds());
+            // Center map on the state bounds safely
+            try {
+                let bounds = currentGeoJsonLayer.getBounds();
+                if (bounds.isValid()) {
+                    map.fitBounds(bounds);
+                } else {
+                    map.setView(config.center, config.zoom);
+                }
+            } catch (e) {
+                map.setView(config.center, config.zoom);
+            }
 
             // Populate District Dropdown
             populateDistricts(data);
@@ -123,21 +138,28 @@ function loadState(stateKey) {
 
 function populateDistricts(data) {
     let districtSelect = document.getElementById('district-select');
+    if (!districtSelect) return;
     districtSelect.innerHTML = '<option value="">Select District...</option>';
     districtSelect.disabled = false;
 
     let talukaSelect = document.getElementById('taluka-select');
-    talukaSelect.innerHTML = '<option value="">Select Taluka...</option>';
-    talukaSelect.disabled = true;
+    if (talukaSelect) {
+        talukaSelect.innerHTML = '<option value="">Select Taluka...</option>';
+        talukaSelect.disabled = true;
+    }
 
-    // Extract unique districts from properties
+    // Extract unique districts from properties with proper casing/trimming support
     let districts = new Set();
-    data.features.forEach(feature => {
-        let dist = feature.properties.DISTRICT || feature.properties.district;
-        if (dist) districts.add(dist);
-    });
+    if (data && data.features) {
+        data.features.forEach(feature => {
+            let props = feature.properties || {};
+            let dist = props.DISTRICT || props.district || props.DIST_NAME;
+            if (dist) districts.add(String(dist).trim());
+        });
+    }
 
-    districts.forEach(dist => {
+    // Sort alphabetically for clean UI presentation
+    Array.from(districts).sort().forEach(dist => {
         let opt = document.createElement('option');
         opt.value = dist;
         opt.textContent = dist;
@@ -146,42 +168,61 @@ function populateDistricts(data) {
 }
 
 function filterByDistrict(districtName) {
-    if (!districtName || !currentGeoJsonLayer) return;
-
     let talukaSelect = document.getElementById('taluka-select');
-    talukaSelect.innerHTML = '<option value="">Select Taluka...</option>';
-    talukaSelect.disabled = false;
+    
+    if (!districtName) {
+        // Reset taluka dropdown and revert layer styles back to state default
+        if (talukaSelect) {
+            talukaSelect.innerHTML = '<option value="">Select Taluka...</option>';
+            talukaSelect.disabled = true;
+        }
+        if (currentGeoJsonLayer) {
+            currentGeoJsonLayer.setStyle({
+                color: '#2c3e50',
+                weight: 2,
+                fillColor: '#3498db',
+                fillOpacity: 0.15
+            });
+            map.fitBounds(currentGeoJsonLayer.getBounds());
+        }
+        return;
+    }
+
+    if (!currentGeoJsonLayer) return;
+
+    if (talukaSelect) {
+        talukaSelect.innerHTML = '<option value="">Select Taluka...</option>';
+        talukaSelect.disabled = false;
+    }
 
     let talukas = new Set();
+    let group = new L.FeatureGroup();
     
     currentGeoJsonLayer.eachLayer(layer => {
-        let props = layer.feature.properties;
-        let dist = props.DISTRICT || props.district;
+        let props = layer.feature.properties || {};
+        let dist = props.DISTRICT || props.district || props.DIST_NAME;
         
-        if (dist === districtName) {
+        if (dist && String(dist).trim() === String(districtName).trim()) {
             layer.setStyle({ fillColor: '#e67e22', fillOpacity: 0.4, weight: 3 });
-            let tal = props.TALUKA || props.taluka || props.name;
-            if (tal) talukas.add(tal);
+            group.addLayer(layer);
+            
+            let tal = props.TALUKA || props.taluka || props.SUB_DIST || props.sub_district || props.NAME || props.name;
+            if (tal) talukas.add(String(tal).trim());
         } else {
             layer.setStyle({ fillColor: '#bdc3c7', fillOpacity: 0.05, weight: 1 });
         }
     });
 
-    talukas.forEach(tal => {
-        let opt = document.createElement('option');
-        opt.value = tal;
-        opt.textContent = tal;
-        talukaSelect.appendChild(opt);
-    });
+    if (talukaSelect) {
+        Array.from(talukas).sort().forEach(tal => {
+            let opt = document.createElement('option');
+            opt.value = tal;
+            opt.textContent = tal;
+            talukaSelect.appendChild(opt);
+        });
+    }
 
-    // Zoom bounds to the filtered district shapes
-    let group = new L.FeatureGroup();
-    currentGeoJsonLayer.eachLayer(layer => {
-        let props = layer.feature.properties;
-        if ((props.DISTRICT || props.district) === districtName) {
-            group.addLayer(L.geoJSON(layer.feature));
-        }
-    });
+    // Zoom bounds to the filtered district shapes safely
     if (group.getLayers().length > 0) {
         map.fitBounds(group.getBounds());
     }
@@ -192,20 +233,27 @@ function filterByTaluka(talukaName) {
 
     let group = new L.FeatureGroup();
     currentGeoJsonLayer.eachLayer(layer => {
-        let props = layer.feature.properties;
-        let tal = props.TALUKA || props.taluka || props.name;
+        let props = layer.feature.properties || {};
+        let tal = props.TALUKA || props.taluka || props.SUB_DIST || props.sub_district || props.NAME || props.name;
         
-        if (tal === talukaName) {
+        if (tal && String(tal).trim() === String(talukaName).trim()) {
             layer.setStyle({ fillColor: '#e74c3c', fillOpacity: 0.6, weight: 4 });
-            group.addLayer(L.geoJSON(layer.feature));
+            group.addLayer(layer);
             layer.openPopup();
         } else {
-            layer.setStyle({ fillColor: '#bdc3c7', fillOpacity: 0.05, weight: 1 });
+            // Keep non-matching features muted
+            let dist = props.DISTRICT || props.district || props.DIST_NAME;
+            let currentSelectedDist = document.getElementById('district-select').value;
+            if (dist && String(dist).trim() === String(currentSelectedDist).trim()) {
+                layer.setStyle({ fillColor: '#e67e22', fillOpacity: 0.2, weight: 2 });
+            } else {
+                layer.setStyle({ fillColor: '#bdc3c7', fillOpacity: 0.05, weight: 1 });
+            }
         }
     });
 
     if (group.getLayers().length > 0) {
-        map.fitBounds(group.getBounds(), { maxZoom: 14 }); // Zoom deep down close to street level
+        map.fitBounds(group.getBounds(), { maxZoom: 13 }); // Zoom deep down close to sub-district level
     }
 }
 
@@ -215,8 +263,14 @@ function resetViewToIndia() {
         map.removeLayer(currentGeoJsonLayer);
         currentGeoJsonLayer = null;
     }
-    document.getElementById('district-select').innerHTML = '<option value="">Select District...</option>';
-    document.getElementById('district-select').disabled = true;
-    document.getElementById('taluka-select').innerHTML = '<option value="">Select Taluka...</option>';
-    document.getElementById('taluka-select').disabled = true;
+    let distSelect = document.getElementById('district-select');
+    if (distSelect) {
+        distSelect.innerHTML = '<option value="">Select District...</option>';
+        distSelect.disabled = true;
+    }
+    let talukaSelect = document.getElementById('taluka-select');
+    if (talukaSelect) {
+        talukaSelect.innerHTML = '<option value="">Select Taluka...</option>';
+        talukaSelect.disabled = true;
+    }
 }
