@@ -83,9 +83,7 @@
         "Suigam": { "lat": 24.3844, "lng": 71.2281, "code": "BK11" },
         "Lakhani": { "lat": 24.2744, "lng": 72.0381, "code": "BK12" }
       }
-    }
-  }
-}
+    },
     "Bharuch": {
       "lat": 21.7051,
       "lng": 72.9959,
@@ -150,4 +148,71 @@
         "Subir": { "lat": 20.9244, "lng": 73.7881, "code": "DG02" },
         "Waghai": { "lat": 20.7844, "lng": 73.4981, "code": "DG03" }
       }
+    },
+    "Devbhoomi Dwarka": {
+      "lat": 22.2447,
+      "lng": 69.9683,
+      "code": "DD",
+      "talukas": {
+        "Khambhalia": { "lat": 22.2044, "lng": 69.6581, "code": "DD01" },
+        "Kalyanpur": { "lat": 22.2444, "lng": 69.3781, "code": "DD02" },
+        "Dwarka": { "lat": 22.2447, "lng": 69.9683, "code": "DD03" },
+        "Bhanvad": { "lat": 21.9444, "lng": 69.7881, "code": "DD04" }
+      }
+    },
+    "Gandhinagar": {
+      "lat": 23.2156,
+      "lng": 72.6369,
+      "code": "GN",
+      "talukas": {
+        "Gandhinagar": { "lat": 23.2156, "lng": 72.6369, "code": "GN01" },
+        "Dehgam": { "lat": 23.1644, "lng": 72.8181, "code": "GN02" },
+        "Kalol": { "lat": 23.2444, "lng": 72.4981, "code": "GN03" },
+        "Mansa": { "lat": 23.4244, "lng": 72.6581, "code": "GN04" }
+      }
+    },
+    "Gir Somnath": {
+      "lat": 20.9103,
+      "lng": 70.4025,
+      "code": "GS",
+      "talukas": {
+        "Veraval": { "lat": 20.9103, "lng": 70.4025, "code": "GS01" },
+        "Una": { "lat": 20.8144, "lng": 71.0381, "code": "GS02" },
+        "Kodinar": { "lat": 20.7944, "lng": 70.7081, "code": "GS03" },
+        "Sutrapada": { "lat": 20.8444, "lng": 70.4781, "code": "GS04" },
+        "Talala": { "lat": 21.0344, "lng": 70.5281, "code": "GS05" },
+        "Pattan-Gujarat": { "lat": 20.8944, "lng": 70.3281, "code": "GS06" }
+      }
+    },
+    "Jamnagar": {
+      "lat": 22.4707,
+      "lng": 70.0577,
+      "code": "JN",
+      "talukas": {
+        "Jamnagar": { "lat": 22.4707, "lng": 70.0577, "code": "JN01" },
+        "Dhrol": { "lat": 22.5744, "lng": 70.4281, "code": "JN02" },
+        "Jodiya": { "lat": 22.6944, "lng": 70.3281, "code": "JN03" },
+        "Kalavad": { "lat": 22.2244, "lng": 70.3781, "code": "JN04" },
+        "Lalpur": { "lat": 22.1444, "lng": 69.9081, "code": "JN05" },
+        "Jamjodhpur": { "lat": 21.8944, "lng": 69.9181, "code": "JN06" }
+      }
+    },
+    "Junagadh": {
+      "lat": 21.5222,
+      "lng": 70.4579,
+      "code": "JU",
+      "talukas": {
+        "Junagadh City": { "lat": 21.5222, "lng": 70.4579, "code": "JU01" },
+        "Junagadh Rural": { "lat": 21.5044, "lng": 70.4881, "code": "JU02" },
+        "Bhesan": { "lat": 21.5844, "lng": 70.7381, "code": "JU03" },
+        "Keshod": { "lat": 21.3044, "lng": 70.2481, "code": "JU04" },
+        "Malia": { "lat": 21.2744, "lng": 70.1881, "code": "JU05" },
+        "Manavadar": { "lat": 21.5044, "lng": 70.2881, "code": "JU06" },
+        "Mangrol": { "lat": 21.1244, "lng": 70.1081, "code": "JU07" },
+        "Mendarda": { "lat": 21.4344, "lng": 70.5781, "code": "JU08" },
+        "Vanthali": { "lat": 21.4644, "lng": 70.3381, "code": "JU09" },
+        "Visavadar": { "lat": 21.3644, "lng": 70.6881, "code": "JU10" }
+      }
     }
+  }
+}
