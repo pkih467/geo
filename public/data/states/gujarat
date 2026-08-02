@@ -353,6 +353,115 @@
         "Ranavav": { "lat": 21.6544, "lng": 69.7481, "code": "PB02" },
         "Kutiyana": { "lat": 21.6344, "lng": 69.9881, "code": "PB03" }
       }
+    },
+    "Rajkot": {
+      "lat": 22.3039,
+      "lng": 70.8022,
+      "code": "RJ",
+      "talukas": {
+        "Rajkot": { "lat": 22.3039, "lng": 70.8022, "code": "RJ01" },
+        "Gondal": { "lat": 21.9572, "lng": 70.7967, "code": "RJ02" },
+        "Jetpur": { "lat": 21.7577, "lng": 70.6214, "code": "RJ03" },
+        "Dhoraji": { "lat": 21.7336, "lng": 70.4536, "code": "RJ04" },
+        "Upleta": { "lat": 21.7344, "lng": 70.2881, "code": "RJ05" },
+        "Jasdan": { "lat": 22.0344, "lng": 71.2081, "code": "RJ06" },
+        "Vinchhiya": { "lat": 22.1244, "lng": 71.3081, "code": "RJ07" },
+        "Kotda Sangani": { "lat": 21.9444, "lng": 70.8581, "code": "RJ08" },
+        "Lodhika": { "lat": 22.2144, "lng": 70.7081, "code": "RJ09" },
+        "Paddhari": { "lat": 22.4444, "lng": 70.6181, "code": "RJ10" },
+        "Jamkandorna": { "lat": 21.8444, "lng": 70.6181, "code": "RJ11" }
+      }
+    },
+    "Sabarkantha": {
+      "lat": 23.7333,
+      "lng": 73.0000,
+      "code": "SK",
+      "talukas": {
+        "Himatnagar": { "lat": 23.6014, "lng": 72.9642, "code": "SK01" },
+        "Idar": { "lat": 23.8444, "lng": 73.0081, "code": "SK02" },
+        "Khedbrahma": { "lat": 24.0244, "lng": 73.1081, "code": "SK03" },
+        "Bhiloda": { "lat": 23.7544, "lng": 73.4081, "code": "SK04" },
+        "Prantij": { "lat": 23.4344, "lng": 72.7881, "code": "SK05" },
+        "Talod": { "lat": 23.3444, "lng": 72.9381, "code": "SK06" },
+        "Vadali": { "lat": 23.9744, "lng": 73.0381, "code": "SK07" },
+        "Poshina": { "lat": 24.2344, "lng": 73.0181, "code": "SK08" }
+      }
+    },
+    "Surat": {
+      "lat": 21.1702,
+      "lng": 72.8311,
+      "code": "ST",
+      "talukas": {
+        "Surat City": { "lat": 21.1702, "lng": 72.8311, "code": "ST01" },
+        "Choryasi": { "lat": 21.1244, "lng": 72.7881, "code": "ST02" },
+        "Bardoli": { "lat": 21.1181, "lng": 73.1169, "code": "ST03" },
+        "Kamrej": { "lat": 21.2844, "lng": 72.9481, "code": "ST04" },
+        "Mahuva": { "lat": 21.0144, "lng": 73.1981, "code": "ST05" },
+        "Mandvi": { "lat": 21.2544, "lng": 73.3081, "code": "ST06" },
+        "Mangrol": { "lat": 21.2644, "lng": 73.0881, "code": "ST07" },
+        "Olpad": { "lat": 21.2944, "lng": 72.7681, "code": "ST08" },
+        "Palsana": { "lat": 21.1044, "lng": 72.9381, "code": "ST09" },
+        "Umarpada": { "lat": 21.3944, "lng": 73.6681, "code": "ST10" }
+      }
+    },
+    "Surendranagar": {
+      "lat": 22.7265,
+      "lng": 71.6360,
+      "code": "SU",
+      "talukas": {
+        "Wadhwan": { "lat": 22.7265, "lng": 71.6360, "code": "SU01" },
+        "Surendranagar": { "lat": 22.7244, "lng": 71.6481, "code": "SU02" },
+        "Chotila": { "lat": 22.4244, "lng": 71.2081, "code": "SU03" },
+        "Dhrangadhra": { "lat": 22.9944, "lng": 71.4681, "code": "SU04" },
+        "Halvad": { "lat": 23.0144, "lng": 71.1881, "code": "SU05" },
+        "Limbdi": { "lat": 22.5644, "lng": 71.8081, "code": "SU06" },
+        "Muli": { "lat": 22.6344, "lng": 71.5081, "code": "SU07" },
+        "Sayla": { "lat": 22.5244, "lng": 71.4781, "code": "SU08" },
+        "Thangadh": { "lat": 22.1744, "lng": 71.2881, "code": "SU09" },
+        "Lakhtar": { "lat": 22.8644, "lng": 71.8381, "code": "SU10" }
+      }
+    },
+    "Tapi": {
+      "lat": 21.2383,
+      "lng": 73.3761,
+      "code": "TP",
+      "talukas": {
+        "Vyara": { "lat": 21.2383, "lng": 73.3761, "code": "TP01" },
+        "Bardoli": { "lat": 21.1181, "lng": 73.1169, "code": "TP02" },
+        "Valod": { "lat": 21.0544, "lng": 73.2381, "code": "TP03" },
+        "Uchchhal": { "lat": 21.3144, "lng": 73.9381, "code": "TP04" },
+        "Nizar": { "lat": 21.4644, "lng": 74.2381, "code": "TP05" },
+        "Kukrakonda": { "lat": 21.1844, "lng": 73.5381, "code": "TP06" },
+        "Songadh": { "lat": 21.1944, "lng": 73.5381, "code": "TP07" }
+      }
+    },
+    "Vadodara": {
+      "lat": 22.3072,
+      "lng": 73.1812,
+      "code": "VD",
+      "talukas": {
+        "Vadodara City": { "lat": 22.3072, "lng": 73.1812, "code": "VD01" },
+        "Vadodara Rural": { "lat": 22.2844, "lng": 73.2081, "code": "VD02" },
+        "Dabhoi": { "lat": 22.1444, "lng": 73.6881, "code": "VD03" },
+        "Karjan": { "lat": 22.1244, "lng": 73.1281, "code": "VD04" },
+        "Padra": { "lat": 22.3244, "lng": 73.0881, "code": "VD05" },
+        "Savli": { "lat": 22.5644, "lng": 73.2181, "code": "VD06" },
+        "Sinor": { "lat": 21.9644, "lng": 73.3081, "code": "VD07" },
+        "Waghodia": { "lat": 22.3244, "lng": 73.5381, "code": "VD08" }
+      }
+    },
+    "Valsad": {
+      "lat": 20.5992,
+      "lng": 72.9342,
+      "code": "VL",
+      "talukas": {
+        "Valsad": { "lat": 20.5992, "lng": 72.9342, "code": "VL01" },
+        "Vapi": { "lat": 20.3704, "lng": 72.9099, "code": "VL02" },
+        "Pardi": { "lat": 20.4844, "lng": 72.9381, "code": "VL03" },
+        "Kaprada": { "lat": 20.3244, "lng": 73.2381, "code": "VL04" },
+        "Umbergaon": { "lat": 20.2144, "lng": 72.7381, "code": "VL05" },
+        "Dharampur": { "lat": 20.5444, "lng": 73.1781, "code": "VL06" }
+      }
     }
   }
 }
