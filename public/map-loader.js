@@ -1,13 +1,24 @@
 document.addEventListener("DOMContentLoaded", function() {
+    // 1. Initialize the map centered over Gujarat
     var map = L.map('map', {
         maxZoom: 19,
         minZoom: 7
     }).setView([22.2587, 71.1924], 7);
 
+    // 2. Add the background map tiles
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
         attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
+
+    // 3. Attach the floating HTML panel to the top right of the map interface
+    var PanelControl = L.Control.extend({
+        options: { position: 'topright' },
+        onAdd: function() {
+            return document.getElementById('ui-container');
+        }
+    });
+    map.addControl(new PanelControl());
 
     var globalData = null;
     var currentMarkersLayer = L.layerGroup().addTo(map);
@@ -16,9 +27,10 @@ document.addEventListener("DOMContentLoaded", function() {
         currentMarkersLayer.clearLayers();
     }
 
+    // 4. Load your gujarat.json data file automatically
     fetch('data/states/gujarat.json')
         .then(function(response) {
-            if (!response.ok) throw new Error('Network response was not ok');
+            if (!response.ok) throw new Error('Could not find gujarat.json file.');
             return response.json();
         })
         .then(function(data) {
@@ -37,9 +49,11 @@ document.addEventListener("DOMContentLoaded", function() {
             districtSelect.disabled = false;
         })
         .catch(function(error) {
-            console.error('Failed to load map data:', error);
+            console.error('Data loading error:', error);
+            document.getElementById('district-select').innerHTML = '<option value="">Error Loading Data</option>';
         });
 
+    // 5. Handle District Selection Changes
     document.getElementById('district-select').addEventListener('change', function() {
         var districtName = this.value;
         var talukaSelect = document.getElementById('taluka-select');
@@ -63,7 +77,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 
                 var opt = document.createElement('option');
                 opt.value = talukaName;
-                opt.textContent = talukaName + " (" + taluka.code + ")";
+                opt.textContent = talukaName;
                 talukaSelect.appendChild(opt);
 
                 if (taluka.lat && taluka.lng) {
@@ -87,6 +101,7 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 
+    // 6. Handle Taluka Selection Changes
     document.getElementById('taluka-select').addEventListener('change', function() {
         var districtName = document.getElementById('district-select').value;
         var talukaName = this.value;
@@ -139,6 +154,7 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 
+    // 7. Handle Village Selection Changes (Deep Zoom)
     document.getElementById('village-select').addEventListener('change', function() {
         var districtName = document.getElementById('district-select').value;
         var talukaName = document.getElementById('taluka-select').value;
