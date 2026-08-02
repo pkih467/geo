@@ -1,0 +1,33 @@
+body, html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+#header {
+  height: 50px;
+  background: #111;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  padding: 0 15px;
+  font-size: 16px;
+  box-sizing: border-box;
+  z-index: 1000;
+  position: relative;
+}
+#back-btn {
+  background: #ff9933;
+  border: none;
+  color: white;
+  padding: 6px 12px;
+  margin-right: 15px;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+}
+#map {
+  height: calc(100vh - 50px);
+  width: 100%;
+}
