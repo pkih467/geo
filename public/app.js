@@ -1,58 +1,74 @@
-// Initialize the Leaflet map centered on Gujarat
-const map = L.map('map').setView([22.2587, 71.1924], 7);
+const map = L.map('map', {
+    zoomControl: false,
+    tap: true // Optimizes touch handling for iPad Safari
+}).setView([22.2587, 71.1924], 7);
 
-// Add base map tiles (OpenStreetMap)
+// Re-add zoom control to top-right for thumb accessibility on tablet
+L.control.zoom({ position: 'topright' }).addTo(map);
+
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
     attribution: '© OpenStreetMap contributors'
 }).addTo(map);
 
-// Layer group to hold map markers so we can clear them easily if needed
-const markersLayer = L.layerGroup().addTo(map);
+const districtLayerGroup = L.layerGroup().addTo(map);
+const talukaLayerGroup = L.layerGroup().addTo(map);
 
-// Function to load and render Gujarat data
-async function loadGujaratData() {
+async function loadStateData() {
     try {
         const response = await fetch('public/data/states/gujarat.json');
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
         const data = await response.json();
-        console.log("Gujarat data loaded successfully:", data.state);
-
-        // Iterate through each district in Gujarat
+        
         Object.entries(data.districts).forEach(([districtName, districtData]) => {
-            // Check if coordinates exist for the district
             if (districtData.lat && districtData.lng) {
-                // Add a marker for the district
-                const marker = L.marker([districtData.lat, districtData.lng])
-                    .bindPopup(`<b>District:</b> ${districtName}`);
+                // District Marker
+                const districtMarker = L.marker([districtData.lat, districtData.lng]);
                 
-                markersLayer.addLayer(marker);
-            }
+                districtMarker.bindPopup(`
+                    <div style="font-size: 14px; padding: 4px;">
+                        <b>District:</b> ${districtName}<br>
+                        <b>Code:</b> ${districtData.code}<br>
+                        <span style="color: #0078D7; cursor: pointer;">Tap to inspect talukas</span>
+                    </div>
+                `);
 
-            // Optional: Loop through talukas if they have been populated
-            if (districtData.talukas) {
-                Object.entries(districtData.talukas).forEach(([talukaName, talukaData]) => {
-                    if (talukaData.lat && talukaData.lng) {
-                        const talukaMarker = L.circleMarker([talukaData.lat, talukaData.lng], {
-                            radius: 4,
-                            color: '#ff7800',
-                            fillColor: '#ff7800',
-                            fillOpacity: 0.8
-                        }).bindPopup(`<b>District:</b> ${districtName}<br><b>Taluka:</b> ${talukaName}`);
-                        
-                        markersLayer.addLayer(talukaMarker);
-                    }
+                // Interactive zoom and sub-layer trigger on iPad touch
+                districtMarker.on('click', () => {
+                    map.setView([districtData.lat, districtData.lng], 10, {
+                        animate: true,
+                        pan: { duration: 0.8 }
+                    });
                 });
+
+                districtLayerGroup.addLayer(districtMarker);
+
+                // Render Talukas if available
+                if (districtData.talukas) {
+                    Object.entries(districtData.talukas).forEach(([talukaName, talukaData]) => {
+                        if (talukaData.lat && talukaData.lng) {
+                            const talukaMarker = L.circleMarker([talukaData.lat, talukaData.lng], {
+                                radius: 6,
+                                color: '#1E3A8A',
+                                fillColor: '#3B82F6',
+                                fillOpacity: 0.8,
+                                weight: 1.5
+                            }).bindPopup(`
+                                <div style="font-size: 13px; padding: 2px;">
+                                    <b>Taluka:</b> ${talukaName}<br>
+                                    <b>District:</b> ${districtName}<br>
+                                    <b>ID:</b> ${talukaData.code}
+                                </div>
+                            `);
+
+                            talukaLayerGroup.addLayer(talukaMarker);
+                        }
+                    });
+                }
             }
         });
-
     } catch (error) {
-        console.error("Failed to load Gujarat data:", error);
+        console.error("Error loading state mapping matrix:", error);
     }
 }
 
-// Run the function on page load
-loadGujaratData();
+loadStateData();
