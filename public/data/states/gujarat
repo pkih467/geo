@@ -213,6 +213,146 @@
         "Vanthali": { "lat": 21.4644, "lng": 70.3381, "code": "JU09" },
         "Visavadar": { "lat": 21.3644, "lng": 70.6881, "code": "JU10" }
       }
+    },
+    "Kachchh": {
+      "lat": 23.2420,
+      "lng": 69.6669,
+      "code": "KC",
+      "talukas": {
+        "Bhuj": { "lat": 23.2420, "lng": 69.6669, "code": "KC01" },
+        "Gandhidham": { "lat": 23.0752, "lng": 70.1332, "code": "KC02" },
+        "Anjar": { "lat": 23.1304, "lng": 70.0169, "code": "KC03" },
+        "Bhachau": { "lat": 23.2844, "lng": 70.3581, "code": "KC04" },
+        "Rapar": { "lat": 23.5644, "lng": 70.3581, "code": "KC05" },
+        "Mandvi": { "lat": 22.8444, "lng": 69.3581, "code": "KC06" },
+        "Mundra": { "lat": 22.8444, "lng": 69.7281, "code": "KC07" },
+        "Nakhatrana": { "lat": 23.3544, "lng": 69.2681, "code": "KC08" },
+        "Abdasa": { "lat": 23.4244, "lng": 68.9581, "code": "KC09" },
+        "Lakhpat": { "lat": 23.8344, "lng": 68.7881, "code": "KC10" }
+      }
+    },
+    "Kheda": {
+      "lat": 22.7533,
+      "lng": 72.6853,
+      "code": "KD",
+      "talukas": {
+        "Kheda": { "lat": 22.7533, "lng": 72.6853, "code": "KD01" },
+        "Nadiad": { "lat": 22.6916, "lng": 72.8634, "code": "KD02" },
+        "Matar": { "lat": 22.4844, "lng": 72.6781, "code": "KD03" },
+        "Mehmedabad": { "lat": 22.8544, "lng": 72.7781, "code": "KD04" },
+        "Mahudha": { "lat": 22.8244, "lng": 72.9281, "code": "KD05" },
+        "Kapadvanj": { "lat": 23.0244, "lng": 73.0781, "code": "KD06" },
+        "Kathlal": { "lat": 22.9244, "lng": 73.0781, "code": "KD07" },
+        "Thasra": { "lat": 22.8644, "lng": 73.2081, "code": "KD08" },
+        "Galteshwar": { "lat": 22.9244, "lng": 73.3081, "code": "KD09" },
+        "Vaso": { "lat": 22.6344, "lng": 72.7981, "code": "KD10" }
+      }
+    },
+    "Mahisagar": {
+      "lat": 23.1378,
+      "lng": 73.5779,
+      "code": "MH",
+      "talukas": {
+        "Lunawada": { "lat": 23.1378, "lng": 73.5779, "code": "MH01" },
+        "Balasinor": { "lat": 22.9844, "lng": 73.3381, "code": "MH02" },
+        "Khedbrahma Rural": { "lat": 23.0344, "lng": 73.4181, "code": "MH03" },
+        "Khanpur": { "lat": 23.2944, "lng": 73.6581, "code": "MH04" },
+        "Santrampur": { "lat": 23.1744, "lng": 73.7181, "code": "MH05" },
+        "Virpur": { "lat": 23.1144, "lng": 73.2881, "code": "MH06" }
+      }
+    },
+    "Mehsana": {
+      "lat": 23.5880,
+      "lng": 72.3693,
+      "code": "MS",
+      "talukas": {
+        "Mehsana": { "lat": 23.5880, "lng": 72.3693, "code": "MS01" },
+        "Kadi": { "lat": 23.3044, "lng": 72.3381, "code": "MS02" },
+        "Visnagar": { "lat": 23.7044, "lng": 72.5581, "code": "MS03" },
+        "Unjha": { "lat": 23.8044, "lng": 72.3981, "code": "MS04" },
+        "Kheralu": { "lat": 23.8844, "lng": 72.6181, "code": "MS05" },
+        "Vadnagar": { "lat": 23.7844, "lng": 72.6381, "code": "MS06" },
+        "Becharaji": { "lat": 23.5044, "lng": 71.9981, "code": "MS07" },
+        "Satlasana": { "lat": 24.0144, "lng": 72.7581, "code": "MS08" },
+        "Jotana": { "lat": 23.5844, "lng": 72.2081, "code": "MS09" },
+        "Vinoj": { "lat": 23.4744, "lng": 72.4881, "code": "MS10" }
+      }
+    },
+    "Morbi": {
+      "lat": 22.8123,
+      "lng": 70.8351,
+      "code": "MB",
+      "talukas": {
+        "Morbi": { "lat": 22.8123, "lng": 70.8351, "code": "MB01" },
+        "Wankaner": { "lat": 22.6144, "lng": 70.9381, "code": "MB02" },
+        "Halvad": { "lat": 23.0144, "lng": 71.1881, "code": "MB03" },
+        "Maliya": { "lat": 23.0744, "lng": 70.7581, "code": "MB04" },
+        "Tankara": { "lat": 22.6844, "lng": 70.6881, "code": "MB05" }
+      }
+    },
+    "Narmada": {
+      "lat": 21.8755,
+      "lng": 73.5074,
+      "code": "NR",
+      "talukas": {
+        "Rajpipla": { "lat": 21.8755, "lng": 73.5074, "code": "NR01" },
+        "Dediapada": { "lat": 21.6244, "lng": 73.6181, "code": "NR02" },
+        "Sagbara": { "lat": 21.4144, "lng": 73.7881, "code": "NR03" },
+        "Tilakwada": { "lat": 22.0644, "lng": 73.5881, "code": "NR04" },
+        "Garudeshwar": { "lat": 21.8844, "lng": 73.6881, "code": "NR05" }
+      }
+    },
+    "Navsari": {
+      "lat": 20.9467,
+      "lng": 72.9234,
+      "code": "NS",
+      "talukas": {
+        "Navsari": { "lat": 20.9467, "lng": 72.9234, "code": "NS01" },
+        "Jalalpore": { "lat": 20.9644, "lng": 72.8681, "code": "NS02" },
+        "Gandevi": { "lat": 20.8144, "lng": 72.9781, "code": "NS03" },
+        "Chikhli": { "lat": 20.7544, "lng": 73.0681, "code": "NS04" },
+        "Vansda": { "lat": 20.7644, "lng": 73.3581, "code": "NS05" },
+        "Khergam": { "lat": 20.7144, "lng": 73.1581, "code": "NS06" }
+      }
+    },
+    "Panchmahal": {
+      "lat": 22.7431,
+      "lng": 73.6163,
+      "code": "PM",
+      "talukas": {
+        "Godhra": { "lat": 22.7431, "lng": 73.6163, "code": "PM01" },
+        "Kalol": { "lat": 22.5844, "lng": 73.5581, "code": "PM02" },
+        "Halol": { "lat": 22.5044, "lng": 73.4681, "code": "PM03" },
+        "Jambughoda": { "lat": 22.3644, "lng": 73.7081, "code": "PM04" },
+        "Ghoghamba": { "lat": 22.6644, "lng": 73.4781, "code": "PM05" },
+        "Morva Hadaf": { "lat": 22.9144, "lng": 73.6581, "code": "PM06" },
+        "Shehera": { "lat": 23.0344, "lng": 73.5781, "code": "PM07" }
+      }
+    },
+    "Patan": {
+      "lat": 23.8500,
+      "lng": 72.1200,
+      "code": "PT",
+      "talukas": {
+        "Patan": { "lat": 23.8500, "lng": 72.1200, "code": "PT01" },
+        "Chanasma": { "lat": 23.7244, "lng": 72.1181, "code": "PT02" },
+        "Harij": { "lat": 23.7044, "lng": 71.8881, "code": "PT03" },
+        "Sami": { "lat": 23.6444, "lng": 71.6081, "code": "PT04" },
+        "Radhanpur": { "lat": 23.8344, "lng": 71.6081, "code": "PT05" },
+        "Santalpur": { "lat": 23.8944, "lng": 71.3281, "code": "PT06" },
+        "Sidhpur": { "lat": 23.9144, "lng": 72.3781, "code": "PT07" },
+        "Shankheshwar": { "lat": 23.5944, "lng": 71.9081, "code": "PT08" }
+      }
+    },
+    "Porbandar": {
+      "lat": 21.6417,
+      "lng": 69.6293,
+      "code": "PB",
+      "talukas": {
+        "Porbandar": { "lat": 21.6417, "lng": 69.6293, "code": "PB01" },
+        "Ranavav": { "lat": 21.6544, "lng": 69.7481, "code": "PB02" },
+        "Kutiyana": { "lat": 21.6344, "lng": 69.9881, "code": "PB03" }
+      }
     }
   }
 }
