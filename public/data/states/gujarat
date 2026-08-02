@@ -1,109 +1,88 @@
 {
   "state": "Gujarat",
-  "lat": 22.2587,
-  "lng": 71.1924,
+  "total_districts": 33,
   "districts": {
     "Ahmedabad": {
       "lat": 23.0225,
       "lng": 72.5714,
+      "code": "AH",
       "talukas": {
-        "Ahmedabad City": { "lat": 23.02, "lng": 72.57, "villages": [] },
-        "Bavla": { "lat": 22.84, "lng": 72.38, "villages": [] },
-        "Daskroi": { "lat": 23.03, "lng": 72.68, "villages": [] },
-        "Detroj-Rampura": { "lat": 23.23, "lng": 71.97, "villages": [] },
-        "Dhandhuka": { "lat": 22.37, "lng": 71.99, "villages": [] },
-        "Dholka": { "lat": 22.72, "lng": 72.42, "villages": [] },
-        "Mandal": { "lat": 23.35, "lng": 71.87, "villages": [] },
-        "Sanand": { "lat": 22.98, "lng": 72.38, "villages": [] },
-        "Viramgam": { "lat": 23.13, "lng": 72.04, "villages": [] }
+        "Ahmedabad City": { "lat": 23.0225, "lng": 72.5714, "code": "AH01" },
+        "Daskroi": { "lat": 22.9681, "lng": 72.6622, "code": "AH02" },
+        "Dhandhuka": { "lat": 22.3734, "lng": 71.9960, "code": "AH03" },
+        "Dholka": { "lat": 22.7249, "lng": 72.4277, "code": "AH04" },
+        "Sanand": { "lat": 22.9868, "lng": 72.3804, "code": "AH05" },
+        "Viramgam": { "lat": 23.1257, "lng": 72.0447, "code": "AH06" },
+        "Bavla": { "lat": 22.8433, "lng": 72.3831, "code": "AH07" },
+        "Detroj-Rampura": { "lat": 23.3214, "lng": 72.1583, "code": "AH08" },
+        "Mandal": { "lat": 23.3615, "lng": 71.8687, "code": "AH09" },
+        "Dholera": { "lat": 22.2547, "lng": 72.1994, "code": "AH10" }
       }
     },
     "Amreli": {
-      "lat": 21.6032,
-      "lng": 71.2221,
+      "lat": 21.6041,
+      "lng": 71.2183,
+      "code": "AM",
       "talukas": {
-        "Amreli": { "lat": 21.60, "lng": 71.22, "villages": [] },
-        "Babra": { "lat": 21.82, "lng": 71.33, "villages": [] },
-        "Bagasara": { "lat": 21.50, "lng": 70.97, "villages": [] },
-        "Dhari": { "lat": 21.33, "lng": 71.02, "villages": [] },
-        "Jafrabad": { "lat": 20.87, "lng": 71.37, "villages": [] },
-        "Khambha": { "lat": 21.15, "lng": 71.12, "villages": [] },
-        "Kunkavav Vadia": { "lat": 21.70, "lng": 71.08, "villages": [] },
-        "Lathi": { "lat": 21.72, "lng": 71.38, "villages": [] },
-        "Lilia": { "lat": 21.67, "lng": 71.47, "villages": [] },
-        "Rajula": { "lat": 21.03, "lng": 71.43, "villages": [] },
-        "Savar Kundla": { "lat": 21.33, "lng": 71.32, "villages": [] }
+        "Amreli": { "lat": 21.6041, "lng": 71.2183, "code": "AM01" },
+        "Dhari": { "lat": 21.3283, "lng": 71.0261, "code": "AM02" },
+        "Kunkavav Vadia": { "lat": 21.7314, "lng": 70.9416, "code": "AM03" },
+        "Lathi": { "lat": 21.7161, "lng": 71.3853, "code": "AM04" },
+        "Lilia": { "lat": 21.4316, "lng": 71.3486, "code": "AM05" },
+        "Rajula": { "lat": 21.0366, "lng": 71.4429, "code": "AM06" },
+        "Savarkundla": { "lat": 21.3302, "lng": 71.3094, "code": "AM07" },
+        "Bagasara": { "lat": 21.5033, "lng": 70.9631, "code": "AM08" },
+        "Khambha": { "lat": 21.1717, "lng": 71.1214, "code": "AM09" },
+        "Jafrabad": { "lat": 20.8653, "lng": 71.3781, "code": "AM10" },
+        "Kolat": { "lat": 21.4122, "lng": 71.5514, "code": "AM11" }
       }
     },
     "Anand": {
-      "lat": 22.5552,
-      "lng": 72.9261,
+      "lat": 22.5645,
+      "lng": 72.9289,
+      "code": "AN",
       "talukas": {
-        "Anand": { "lat": 22.55, "lng": 72.93, "villages": [] },
-        "Anklav": { "lat": 22.42, "lng": 73.02, "villages": [] },
-        "Borsad": { "lat": 22.41, "lng": 72.90, "villages": [] },
-        "Khambhat": { "lat": 22.31, "lng": 72.62, "villages": [] },
-        "Petlad": { "lat": 22.48, "lng": 72.80, "villages": [] },
-        "Sojitra": { "lat": 22.65, "lng": 72.78, "villages": [] },
-        "Tarapur": { "lat": 22.48, "lng": 72.53, "villages": [] },
-        "Umreth": { "lat": 22.68, "lng": 73.12, "villages": [] }
+        "Anand": { "lat": 22.5645, "lng": 72.9289, "code": "AN01" },
+        "Borsad": { "lat": 22.4116, "lng": 72.8997, "code": "AN02" },
+        "Anklav": { "lat": 22.4244, "lng": 73.0242, "code": "AN03" },
+        "Khambhat": { "lat": 22.3129, "lng": 72.6171, "code": "AN04" },
+        "Petlad": { "lat": 22.4691, "lng": 72.7937, "code": "AN05" },
+        "Sojitra": { "lat": 22.6514, "lng": 72.6931, "code": "AN06" },
+        "Tarapur": { "lat": 22.5111, "lng": 72.6681, "code": "AN07" },
+        "Umreth": { "lat": 22.6841, "lng": 73.1169, "code": "AN08" }
       }
     },
-    "Aravalli": { "lat": 23.51, "lng": 73.30, "talukas": {} },
-    "Banaskantha": { "lat": 24.17, "lng": 72.43, "talukas": {} },
-    "Bharuch": { "lat": 21.70, "lng": 72.99, "talukas": {} },
-    "Bhavnagar": { "lat": 21.76, "lng": 72.15, "talukas": {} },
-    "Botad": { "lat": 22.17, "lng": 71.67, "talukas": {} },
-    "Chhota Udaipur": { "lat": 22.31, "lng": 74.01, "talukas": {} },
-    "Dahod": { "lat": 22.84, "lng": 74.25, "talukas": {} },
-    "Dang": { "lat": 20.85, "lng": 73.69, "talukas": {} },
-    "Devbhoomi Dwarka": { "lat": 22.24, "lng": 69.82, "talukas": {} },
-    "Gandhinagar": { "lat": 23.21, "lng": 72.63, "talukas": {} },
-    "Gir Somnath": { "lat": 20.91, "lng": 70.40, "talukas": {} },
-    "Jamnagar": { "lat": 22.47, "lng": 70.05, "talukas": {} },
-    "Junagadh": { "lat": 21.52, "lng": 70.45, "talukas": {} },
-    "Kutch": { "lat": 23.73, "lng": 69.85, "talukas": {} },
-    "Kheda": { "lat": 22.75, "lng": 72.68, "talukas": {} },
-    "Mahisagar": { "lat": 23.13, "lng": 73.57, "talukas": {} },
-    "Mehsana": { "lat": 23.58, "lng": 72.37, "talukas": {} },
-    "Morbi": { "lat": 22.82, "lng": 70.83, "talukas": {} },
-    "Narmada": { "lat": 21.87, "lng": 73.50, "talukas": {} },
-    "Navsari": { "lat": 20.94, "lng": 72.92, "talukas": {} },
-    "Panchmahal": { "lat": 22.77, "lng": 73.61, "talukas": {} },
-    "Patan": { "lat": 23.85, "lng": 72.12, "talukas": {} },
-    "Porbandar": { "lat": 21.64, "lng": 69.62, "talukas": {} },
-    "Rajkot": { "lat": 22.30, "lng": 70.80, "talukas": {} },
-    "Sabarkantha": { "lat": 23.60, "lng": 73.03, "talukas": {} },
-    "Surat": { 
-      "lat": 21.17, 
-      "lng": 72.83, 
+    "Aravalli": {
+      "lat": 23.5154,
+      "lng": 73.2974,
+      "code": "AR",
       "talukas": {
-        "Surat City": { "lat": 21.17, "lng": 72.83, "villages": [] },
-        "Chorasi": { "lat": 21.12, "lng": 72.80, "villages": [] },
-        "Bardoli": { "lat": 21.12, "lng": 73.12, "villages": [] },
-        "Kamrej": { "lat": 21.28, "lng": 72.93, "villages": [] },
-        "Mahuva": { "lat": 21.08, "lng": 73.18, "villages": [] },
-        "Mandvi": { "lat": 21.28, "lng": 73.30, "villages": [] },
-        "Olpad": { "lat": 21.28, "lng": 72.77, "villages": [] },
-        "Palsana": { "lat": 21.10, "lng": 72.95, "villages": [] },
-        "Umarpada": { "lat": 21.43, "lng": 73.68, "villages": [] }
-      } 
+        "Modasa": { "lat": 23.4697, "lng": 73.2974, "code": "AR01" },
+        "Bayad": { "lat": 23.1894, "lng": 73.2081, "code": "AR02" },
+        "Dhansura": { "lat": 23.3644, "lng": 73.2014, "code": "AR03" },
+        "Malpur": { "lat": 23.3444, "lng": 73.6331, "code": "AR04" },
+        "Meghraj": { "lat": 23.5014, "lng": 73.5042, "code": "AR05" },
+        "Bhiloda": { "lat": 23.7544, "lng": 73.4081, "code": "AR06" }
+      }
     },
-    "Surendranagar": { "lat": 22.72, "lng": 71.74, "talukas": {} },
-    "Tapi": { "lat": 21.23, "lng": 73.71, "talukas": {} },
-    "Vadodara": { 
-      "lat": 22.30, 
-      "lng": 73.18, 
+    "Banaskantha": {
+      "lat": 24.2300,
+      "lng": 72.4300,
+      "code": "BK",
       "talukas": {
-        "Vadodara City": { "lat": 22.31, "lng": 73.18, "villages": [] },
-        "Dabhoi": { "lat": 22.15, "lng": 73.42, "villages": [] },
-        "Karjan": { "lat": 22.28, "lng": 73.12, "villages": [] },
-        "Padra": { "lat": 22.32, "lng": 73.08, "villages": [] },
-        "Savli": { "lat": 22.57, "lng": 73.22, "villages": [] },
-        "Sinor": { "lat": 22.08, "lng": 73.32, "villages": [] },
-        "Waghodia": { "lat": 22.30, "lng": 73.55, "villages": [] }
-      } 
-    },
-    "Valsad": { "lat": 20.61, "lng": 72.93, "talukas": {} }
+        "Palanpur": { "lat": 24.1743, "lng": 72.4340, "code": "BK01" },
+        "Deesa": { "lat": 24.2536, "lng": 72.1837, "code": "BK02" },
+        "Danta": { "lat": 24.2253, "lng": 72.7214, "code": "BK03" },
+        "Diydar": { "lat": 24.1622, "lng": 71.4642, "code": "BK04" },
+        "Kankrej": { "lat": 23.8344, "lng": 71.7614, "code": "BK05" },
+        "Tharad": { "lat": 24.3972, "lng": 71.6569, "code": "BK06" },
+        "Vadgam": { "lat": 23.8681, "lng": 72.5481, "code": "BK07" },
+        "Vav": { "lat": 24.3414, "lng": 71.3653, "code": "BK08" },
+        "Amirgadh": { "lat": 24.3144, "lng": 72.5931, "code": "BK09" },
+        "Bhabhar": { "lat": 24.2533, "lng": 71.7714, "code": "BK10" },
+        "Suigam": { "lat": 24.3844, "lng": 71.2281, "code": "BK11" },
+        "Lakhani": { "lat": 24.2744, "lng": 72.0381, "code": "BK12" }
+      }
+    }
   }
 }
