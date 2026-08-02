@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Geo PWA</title>
@@ -11,31 +11,36 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     
     <style>
+        * {
+            -webkit-tap-highlight-color: transparent;
+        }
         html, body {
             margin: 0;
             padding: 0;
             width: 100%;
             height: 100%;
             overflow: hidden;
+            position: fixed;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
-            text-rendering: optimizeLegibility;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            touch-action: none;
+            background: #ffffff;
         }
         #map {
             width: 100%;
             height: 100%;
             position: absolute;
             top: 0;
-            bottom: 0;
             left: 0;
             right: 0;
-            touch-action: none;
+            bottom: 0;
+            /* Force hardware acceleration to stop dragging lag on iPad */
+            transform: translate3d(0, 0, 0);
         }
-        .leaflet-control, .leaflet-popup {
+        .leaflet-container {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            -webkit-font-smoothing: antialiased;
+            width: 100%;
+            height: 100%;
         }
     </style>
 </head>
@@ -46,26 +51,37 @@
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // Initialize map with touch options explicitly enabled
+        // Initialize map with native touch options optimized for iOS Safari
         const map = L.map('map', {
-            tap: true,
+            zoomControl: true,
             dragging: true,
-            touchZoom: true
+            tap: true,
+            touchZoom: true,
+            scrollWheelZoom: true,
+            bounceAtZoomLimits: false
         }).setView([20.5937, 78.9629], 5);
 
+        // Add retina-friendly tile layer configuration
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
+            detectRetina: true, // Crisp rendering on iPad Retina displays
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
 
-        // Force resize calculation after load
+        // Force viewport recalculation to prevent grey box clipping
+        window.addEventListener('resize', () => {
+            setTimeout(() => {
+                map.invalidateSize();
+            }, 200);
+        });
+
         window.addEventListener('load', () => {
             setTimeout(() => {
                 map.invalidateSize();
-            }, 100);
+            }, 250);
         });
 
-        // Register Service Worker
+        // Register Service Worker for offline safety
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/sw.js').catch(err => {
