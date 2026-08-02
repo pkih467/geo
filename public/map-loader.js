@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", function() {
+    // Initialize map centered over Gujarat
     var map = L.map('map').setView([22.2587, 71.1924], 7);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -18,6 +19,7 @@ document.addEventListener("DOMContentLoaded", function() {
         currentMarker.bindPopup(popupText).openPopup();
     }
 
+    // Load the JSON data structure
     fetch('data/states/gujarat.json')
         .then(function(response) {
             if (!response.ok) throw new Error('Network response was not ok');
@@ -27,7 +29,6 @@ document.addEventListener("DOMContentLoaded", function() {
             globalData = data;
             var districtSelect = document.getElementById('district-select');
             
-            // Populate Districts
             districtSelect.innerHTML = '<option value="">-- Select District --</option>';
             for (var districtName in data.districts) {
                 if (data.districts.hasOwnProperty(districtName)) {
@@ -43,7 +44,7 @@ document.addEventListener("DOMContentLoaded", function() {
             console.error('Failed to load map data:', error);
         });
 
-    // District Change Handler
+    // District Dropdown Change Event
     document.getElementById('district-select').addEventListener('change', function() {
         var districtName = this.value;
         var talukaSelect = document.getElementById('taluka-select');
@@ -58,8 +59,6 @@ document.addEventListener("DOMContentLoaded", function() {
 
         var district = globalData.districts[districtName];
         
-        // Zoom out to district level center (approximate using first taluka or default)
-        // Populate Talukas
         for (var talukaName in district.talukas) {
             if (district.talukas.hasOwnProperty(talukaName)) {
                 var opt = document.createElement('option');
@@ -70,15 +69,13 @@ document.addEventListener("DOMContentLoaded", function() {
         }
         talukaSelect.disabled = false;
 
-        // Auto-zoom to first available taluka or center point if coordinates exist
-        var firstTalukaKey = Object.keys(district.talukas)[0];
-        if (firstTalukaKey) {
-            var t = district.talukas[firstTalukaKey];
-            setMapFocus(t.lat, t.lng, 9, "<b>District:</b> " + districtName);
+        // Zoom into district level if coordinates are present
+        if (district.lat && district.lng) {
+            setMapFocus(district.lat, district.lng, 9, "<b>District:</b> " + districtName);
         }
     });
 
-    // Taluka Change Handler
+    // Taluka Dropdown Change Event
     document.getElementById('taluka-select').addEventListener('change', function() {
         var districtName = document.getElementById('district-select').value;
         var talukaName = this.value;
@@ -90,9 +87,8 @@ document.addEventListener("DOMContentLoaded", function() {
         if (!talukaName) return;
 
         var taluka = globalData.districts[districtName].talukas[talukaName];
-        setMapFocus(taluka.lat, taluka.lng, 11, "<b>Taluka:</b> " + talukaName + "<br><b>Code:</b> " + taluka.code);
+        setMapFocus(taluka.lat, taluka.lng, 11, "<b>Taluka:</b> " + talukaName);
 
-        // If your JSON includes nested villages, populate them here:
         if (taluka.villages) {
             for (var villageName in taluka.villages) {
                 if (taluka.villages.hasOwnProperty(villageName)) {
@@ -106,7 +102,7 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 
-    // Village Change Handler (if village data structure exists)
+    // Village Dropdown Change Event
     document.getElementById('village-select').addEventListener('change', function() {
         var districtName = document.getElementById('district-select').value;
         var talukaName = document.getElementById('taluka-select').value;
