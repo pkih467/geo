@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Gujarat Campaign Map</title>
+    <title>gujarat</title>
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
@@ -17,6 +17,7 @@
             height: 100vh;
             width: 100%;
             z-index: 1;
+            background: #f2f2f2;
         }
         /* Dropdown Control Panel Styling */
         .campaign-panel {
@@ -30,6 +31,7 @@
             margin: 0 0 15px 0;
             font-size: 20px;
             color: #222;
+            text-transform: lowercase;
         }
         .campaign-panel label {
             display: block;
@@ -54,10 +56,10 @@
     <!-- Map Canvas -->
     <div id="map"></div>
 
-    <!-- UI Panel (Hidden initially so Leaflet can host it safely) -->
+    <!-- UI Panel Container -->
     <div style="display: none;">
         <div id="ui-container" class="campaign-panel">
-            <h3>Gujarat Campaign Control</h3>
+            <h3>gujarat</h3>
             
             <label for="district-select">District</label>
             <select id="district-select" disabled>
