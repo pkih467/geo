@@ -86,3 +86,68 @@
     }
   }
 }
+    "Bharuch": {
+      "lat": 21.7051,
+      "lng": 72.9959,
+      "code": "BH",
+      "talukas": {
+        "Bharuch": { "lat": 21.7051, "lng": 72.9959, "code": "BH01" },
+        "Ankleshwar": { "lat": 21.6264, "lng": 73.0152, "code": "BH02" },
+        "Amod": { "lat": 22.0514, "lng": 72.7481, "code": "BH03" },
+        "Hansot": { "lat": 21.5744, "lng": 72.6881, "code": "BH04" },
+        "Jambusar": { "lat": 22.0444, "lng": 72.7981, "code": "BH05" },
+        "Jagadia": { "lat": 21.7244, "lng": 73.3581, "code": "BH06" },
+        "Vagra": { "lat": 21.9144, "lng": 72.8581, "code": "BH07" },
+        "Valia": { "lat": 21.4944, "lng": 73.2281, "code": "BH08" },
+        "Netrang": { "lat": 21.5344, "lng": 73.4981, "code": "BH09" }
+      }
+    },
+    "Botad": {
+      "lat": 22.1702,
+      "lng": 71.6671,
+      "code": "BT",
+      "talukas": {
+        "Botad": { "lat": 22.1702, "lng": 71.6671, "code": "BT01" },
+        "Barwala": { "lat": 22.1644, "lng": 71.8581, "code": "BT02" },
+        "Gadhada": { "lat": 21.9744, "lng": 71.5881, "code": "BT03" },
+        "Ranpur": { "lat": 22.3844, "lng": 71.8481, "code": "BT04" }
+      }
+    },
+    "Chhota Udaipur": {
+      "lat": 22.3168,
+      "lng": 74.0150,
+      "code": "CU",
+      "talukas": {
+        "Chhota Udaipur": { "lat": 22.3168, "lng": 74.0150, "code": "CU01" },
+        "Bodeli": { "lat": 22.2844, "lng": 73.7281, "code": "CU02" },
+        "Jetpur Pavi": { "lat": 22.4044, "lng": 73.9181, "code": "CU03" },
+        "Kavant": { "lat": 22.1044, "lng": 74.0781, "code": "CU04" },
+        "Naswadi": { "lat": 22.0844, "lng": 73.7981, "code": "CU05" },
+        "Sankheda": { "lat": 22.3244, "lng": 73.5781, "code": "CU06" }
+      }
+    },
+    "Dahod": {
+      "lat": 22.8314,
+      "lng": 74.2590,
+      "code": "DH",
+      "talukas": {
+        "Dahod": { "lat": 22.8314, "lng": 74.2590, "code": "DH01" },
+        "Devgadh Baria": { "lat": 22.7044, "lng": 73.9081, "code": "DH02" },
+        "Dhanpur": { "lat": 22.6844, "lng": 74.1381, "code": "DH03" },
+        "Fatepura": { "lat": 23.2344, "lng": 74.1281, "code": "DH04" },
+        "Garbada": { "lat": 22.8944, "lng": 74.3781, "code": "DH05" },
+        "Limkheda": { "lat": 22.8444, "lng": 73.9981, "code": "DH06" },
+        "Sanjeli": { "lat": 23.0844, "lng": 73.8981, "code": "DH07" },
+        "Jhalod": { "lat": 23.0744, "lng": 74.1581, "code": "DH08" }
+      }
+    },
+    "Dang": {
+      "lat": 20.7680,
+      "lng": 73.6934,
+      "code": "DG",
+      "talukas": {
+        "Ahwa": { "lat": 20.7680, "lng": 73.6934, "code": "DG01" },
+        "Subir": { "lat": 20.9244, "lng": 73.7881, "code": "DG02" },
+        "Waghai": { "lat": 20.7844, "lng": 73.4981, "code": "DG03" }
+      }
+    }
