@@ -19,17 +19,16 @@ jobs:
           SOURCE_REPO: "yashveeeeeeer/india-geodata"
           TARGET_REPO: "${{ github.repository }}"
         run: |
-          RELEASES=$(gh release list -R "$SOURCE_REPO" --limit 1000 --json tagName,title,notes)
+          RELEASES=$(gh release list -R "$SOURCE_REPO" --limit 1000 --json tagName,name)
           echo "$RELEASES" | jq -c '.[]' | while read -r rel; do
             TAG=$(echo "$rel" | jq -r '.tagName')
-            TITLE=$(echo "$rel" | jq -r '.title // .tagName')
-            NOTES=$(echo "$rel" | jq -r '.notes // "Geospatial data release"')
+            TITLE=$(echo "$rel" | jq -r '.name // .tagName')
             
             DIR="./tmp_download"
             rm -rf "$DIR" && mkdir -p "$DIR"
             
             gh release download "$TAG" -R "$SOURCE_REPO" -D "$DIR" --clobber || true
-            gh release create "$TAG" -R "$TARGET_REPO" --title "$TITLE" --notes "$NOTES" || true
+            gh release create "$TAG" -R "$TARGET_REPO" --title "$TITLE" || true
             
             FILES=$(find "$DIR" -maxdepth 1 -type f)
             if [ -n "$FILES" ]; then
@@ -37,4 +36,3 @@ jobs:
             fi
             rm -rf "$DIR"
           done
-
