@@ -119,15 +119,32 @@
       doubleClickZoom: true
     }).setView([22.5937, 78.9629], 5);
 
-    // General Map Tap/Click: Zooms directly into whatever spot you tap on (e.g., Junagadh)
-    map.on('click', function(e) {
+    // Direct Spot Zoom Function
+    function zoomToLocation(e) {
+      var latlng = e.latlng;
+      if (!latlng) return;
+
       var currentZoom = map.getZoom();
-      var targetZoom = currentZoom < 8 ? 9 : (currentZoom < 11 ? 12 : currentZoom + 2);
-      map.flyTo(e.latlng, Math.min(targetZoom, 18), {
+      var nextZoom;
+
+      if (currentZoom < 7) {
+        nextZoom = 9;     // Country -> State view
+      } else if (currentZoom < 10) {
+        nextZoom = 12;    // State view -> City/District view (e.g. Junagadh)
+      } else if (currentZoom < 13) {
+        nextZoom = 15;    // City view -> Town/Street view
+      } else {
+        nextZoom = Math.min(currentZoom + 2, 18);
+      }
+
+      map.flyTo(latlng, nextZoom, {
         duration: 0.8,
         animate: true
       });
-    });
+    }
+
+    // Tap anywhere on the map background to zoom directly into that location
+    map.on('click', zoomToLocation);
 
     // Basemaps
     var cleanMap = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { maxZoom: 19 });
@@ -167,7 +184,7 @@
 
     L.control.layers(baseMaps, overlayMaps, { position: 'topright', collapsed: false }).addTo(map);
 
-    // Dynamic TopoJSON Loader with Feature Zoom
+    // Dynamic TopoJSON Loader with Spot Zooming
     function loadTopoJSON(url, targetLayer, styleOptions, nameProperty) {
       fetch(url)
         .then(res => res.json())
@@ -179,20 +196,14 @@
             style: styleOptions,
             onEachFeature: function (feature, layer) {
               var label = feature.properties ? (feature.properties[nameProperty] || feature.properties.NAME || "Boundary") : "Boundary";
-              
+              layer.bindPopup("<b>" + label + "</b>");
+
+              // When tapping anywhere inside a boundary line, fly to that EXACT tapped spot!
               layer.on('click', function (e) {
                 L.DomEvent.stopPropagation(e);
-                if (e.target && e.target.getBounds) {
-                  map.fitBounds(e.target.getBounds(), {
-                    padding: [40, 40],
-                    maxZoom: 13,
-                    animate: true,
-                    duration: 0.8
-                  });
-                }
+                zoomToLocation(e);
+                layer.openPopup(e.latlng);
               });
-
-              layer.bindPopup("<b>" + label + "</b>");
             }
           }).addTo(targetLayer);
         }).catch(err => console.log(err));
