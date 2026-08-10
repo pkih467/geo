@@ -9,6 +9,7 @@
   
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/topojson-client@3"></script>
 
   <style>
     body, html { margin: 0; padding: 0; height: 100%; width: 100%; background: #000; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
@@ -27,15 +28,22 @@
       padding: 8px 12px; outline: none; -webkit-appearance: none;
     }
 
+    .leaflet-right { right: 15px !important; }
+    .leaflet-top { top: 15px !important; }
+    
     .leaflet-control-layers {
-      border-radius: 12px !important;
+      border-radius: 14px !important;
       box-shadow: 0 4px 15px rgba(0,0,0,0.15) !important;
-      padding: 6px 10px !important;
+      padding: 10px 14px !important;
+      background: rgba(255, 255, 255, 0.95) !important;
+      backdrop-filter: blur(10px);
+      font-weight: 500;
     }
   </style>
 </head>
 <body>
 
+  <!-- State Dropdown -->
   <div class="control-panel">
     <select id="stateDropdown" class="state-select" onchange="zoomToState(this.value)">
       <option value="22.5937,78.9629,5">🇮🇳 Entire India</option>
@@ -70,55 +78,108 @@
       <option value="30.0668,79.0193,8">Uttarakhand</option>
       <option value="22.9868,87.8550,7">West Bengal</option>
       <option value="28.7041,77.1025,10">Delhi (NCT)</option>
-      <option value="11.7401,92.6586,7">Andaman & Nicobar</option>
-      <option value="30.7333,76.7794,11">Chandigarh</option>
-      <option value="20.1809,73.0169,9">Dadra & Nagar Haveli and Daman & Diu</option>
-      <option value="10.5667,72.6417,9">Lakshadweep</option>
-      <option value="11.9416,79.8083,10">Puducherry</option>
     </select>
   </div>
 
   <div id="map"></div>
 
   <script>
-    // Initialize mobile map
     var map = L.map('map', { zoomControl: false }).setView([22.5937, 78.9629], 5);
 
-    // Clean, high-resolution basemap
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-      maxZoom: 19,
-      attribution: '© OpenStreetMap © CARTO'
-    }).addTo(map);
-
+    // Basemaps: Clean Light Map vs Detailed Road Map
+    var cleanMap = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { maxZoom: 19 });
+    var roadMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 });
+    
+    cleanMap.addTo(map);
     L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-    // Layer groups for boundaries
-    var stateBoundaries = L.layerGroup();
+    // Layer groups
+    var stateLayer = L.layerGroup();
+    var districtLayer = L.layerGroup();
+    var talukaLayer = L.layerGroup();
+    var pcLayer = L.layerGroup();
+    var acLayer = L.layerGroup();
 
-    var overlayMaps = {
-      "🗺️ State Boundaries": stateBoundaries
+    var baseMaps = {
+      "🗺️ Clean Map": cleanMap,
+      "🛣️ Roads & Streets": roadMap
     };
 
-    L.control.layers(null, overlayMaps, { position: 'topright', collapsed: false }).addTo(map);
+    var overlayMaps = {
+      "🗺️ State Boundaries": stateLayer,
+      "🏛️ District Boundaries": districtLayer,
+      "📍 Talukas / Tehsils": talukaLayer,
+      "🗳️ Parliamentary (Lok Sabha)": pcLayer,
+      "🗳️ Assembly (Vidhan Sabha)": acLayer
+    };
 
-    // Load boundaries layer
-    fetch('https://raw.githubusercontent.com/datameet/maps/master/States/Admin2.topo.json')
-      .then(res => res.json())
-      .then(data => {
-        L.geoJSON(data, {
-          style: { color: '#007AFF', weight: 1.5, fillOpacity: 0.05 }
-        }).addTo(stateBoundaries);
-      }).catch(e => console.log(e));
+    L.control.layers(baseMaps, overlayMaps, { position: 'topright', collapsed: false }).addTo(map);
 
-    stateBoundaries.addTo(map);
+    // Loader Helper
+    function loadTopoJSON(url, targetLayer, styleOptions, nameProperty) {
+      fetch(url)
+        .then(res => res.json())
+        .then(topoData => {
+          var objName = Object.keys(topoData.objects)[0];
+          var geoJsonData = topojson.feature(topoData, topoData.objects[objName]);
+          L.geoJSON(geoJsonData, {
+            style: styleOptions,
+            onEachFeature: function (feature, layer) {
+              if (feature.properties) {
+                var label = feature.properties[nameProperty] || feature.properties.STNAME || feature.properties.DISTRICT || "Boundary";
+                layer.bindPopup("<b>" + label + "</b>");
+              }
+            }
+          }).addTo(targetLayer);
+        }).catch(err => console.log(err));
+    }
 
-    // Smooth zoom function when selecting a state
+    function loadGeoJSON(url, targetLayer, styleOptions, nameProp) {
+      fetch(url)
+        .then(res => res.json())
+        .then(geoJsonData => {
+          L.geoJSON(geoJsonData, {
+            style: styleOptions,
+            onEachFeature: function (feature, layer) {
+              if (feature.properties) {
+                var label = feature.properties[nameProp] || feature.properties.AC_NAME || feature.properties.PC_NAME || "Constituency";
+                layer.bindPopup("<b>" + label + "</b>");
+              }
+            }
+          }).addTo(targetLayer);
+        }).catch(err => console.log(err));
+    }
+
+    // 1. Load States (Default ON)
+    loadTopoJSON('https://raw.githubusercontent.com/datameet/maps/master/States/Admin2.topo.json', stateLayer, {
+      color: '#007AFF', weight: 2, fillOpacity: 0.05
+    }, 'STNAME');
+    stateLayer.addTo(map);
+
+    // 2. Load Districts
+    loadTopoJSON('https://raw.githubusercontent.com/datameet/maps/master/Districts/Admin2.topo.json', districtLayer, {
+      color: '#FF9500', weight: 1.5, fillOpacity: 0.05
+    }, 'DISTRICT');
+
+    // 3. Load Talukas / Tehsils
+    loadTopoJSON('https://raw.githubusercontent.com/datameet/maps/master/Subdistricts/Admin2.topo.json', talukaLayer, {
+      color: '#AF52DE', weight: 1, fillOpacity: 0.05
+    }, 'SUB_DIST');
+
+    // 4. Load Parliamentary Constituencies
+    loadGeoJSON('https://raw.githubusercontent.com/datameet/maps/master/Parliamentary/parliamentary_constituencies.geojson', pcLayer, {
+      color: '#34C759', weight: 1.5, fillOpacity: 0.08
+    }, 'PC_NAME');
+
+    // 5. Load Assembly Constituencies
+    loadGeoJSON('https://raw.githubusercontent.com/datameet/maps/master/Assembly/assembly_constituencies.geojson', acLayer, {
+      color: '#FF2D55', weight: 1.2, fillOpacity: 0.08
+    }, 'AC_NAME');
+
+    // State Zoom
     function zoomToState(value) {
       var coords = value.split(',');
-      var lat = parseFloat(coords[0]);
-      var lng = parseFloat(coords[1]);
-      var zoom = parseInt(coords[2]);
-      map.flyTo([lat, lng], zoom, { duration: 1.2 });
+      map.flyTo([parseFloat(coords[0]), parseFloat(coords[1])], parseInt(coords[2]), { duration: 1.2 });
     }
   </script>
 </body>
