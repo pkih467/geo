@@ -13,30 +13,113 @@
   <style>
     body, html { margin: 0; padding: 0; height: 100%; width: 100%; background: #000; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     #map { height: 100%; width: 100%; }
-    .header-card {
-      position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
+    
+    .control-panel {
+      position: absolute; top: 15px; left: 15px;
       z-index: 1000; background: rgba(255, 255, 255, 0.95);
-      padding: 12px 20px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-      text-align: center; font-weight: 600; color: #1c1c1e; backdrop-filter: blur(10px);
+      padding: 8px 12px; border-radius: 14px; box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+      backdrop-filter: blur(10px); display: flex; flex-direction: column; gap: 6px;
+    }
+
+    .state-select {
+      font-size: 15px; font-weight: 600; color: #1c1c1e;
+      background: #f2f2f7; border: 1px solid #d1d1d6; border-radius: 10px;
+      padding: 8px 12px; outline: none; -webkit-appearance: none;
+    }
+
+    .leaflet-control-layers {
+      border-radius: 12px !important;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.15) !important;
+      padding: 6px 10px !important;
     }
   </style>
 </head>
 <body>
 
-  <div class="header-card">📍 India Geodata Map Hub</div>
+  <div class="control-panel">
+    <select id="stateDropdown" class="state-select" onchange="zoomToState(this.value)">
+      <option value="22.5937,78.9629,5">🇮🇳 Entire India</option>
+      <option value="15.9129,79.7400,7">Andhra Pradesh</option>
+      <option value="28.2180,94.7278,7">Arunachal Pradesh</option>
+      <option value="26.2006,92.9376,7">Assam</option>
+      <option value="25.0961,85.3131,7">Bihar</option>
+      <option value="21.2787,81.8661,7">Chhattisgarh</option>
+      <option value="15.2993,74.1240,10">Goa</option>
+      <option value="22.2587,71.1924,7">Gujarat</option>
+      <option value="29.0588,76.0856,8">Haryana</option>
+      <option value="31.1048,77.1734,8">Himachal Pradesh</option>
+      <option value="33.7782,76.5762,7">Jammu & Kashmir</option>
+      <option value="23.6102,85.2799,7">Jharkhand</option>
+      <option value="15.3173,75.7139,7">Karnataka</option>
+      <option value="10.8505,76.2711,8">Kerala</option>
+      <option value="34.1526,77.5771,7">Ladakh</option>
+      <option value="22.9734,78.6569,7">Madhya Pradesh</option>
+      <option value="19.7515,75.7139,7">Maharashtra</option>
+      <option value="24.6637,93.9063,8">Manipur</option>
+      <option value="25.4670,91.3662,8">Meghalaya</option>
+      <option value="23.1645,92.9376,8">Mizoram</option>
+      <option value="26.1584,94.5624,8">Nagaland</option>
+      <option value="20.9517,85.0985,7">Odisha</option>
+      <option value="31.1471,75.3412,8">Punjab</option>
+      <option value="27.0238,74.2179,7">Rajasthan</option>
+      <option value="27.5330,88.5122,9">Sikkim</option>
+      <option value="11.1271,78.6569,7">Tamil Nadu</option>
+      <option value="18.1124,79.0193,7">Telangana</option>
+      <option value="23.8438,91.2868,9">Tripura</option>
+      <option value="26.8467,80.9462,7">Uttar Pradesh</option>
+      <option value="30.0668,79.0193,8">Uttarakhand</option>
+      <option value="22.9868,87.8550,7">West Bengal</option>
+      <option value="28.7041,77.1025,10">Delhi (NCT)</option>
+      <option value="11.7401,92.6586,7">Andaman & Nicobar</option>
+      <option value="30.7333,76.7794,11">Chandigarh</option>
+      <option value="20.1809,73.0169,9">Dadra & Nagar Haveli and Daman & Diu</option>
+      <option value="10.5667,72.6417,9">Lakshadweep</option>
+      <option value="11.9416,79.8083,10">Puducherry</option>
+    </select>
+  </div>
+
   <div id="map"></div>
 
   <script>
-    // Initialize map centered on India
+    // Initialize mobile map
     var map = L.map('map', { zoomControl: false }).setView([22.5937, 78.9629], 5);
 
-    // High-resolution basemap
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    // Clean, high-resolution basemap
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
       maxZoom: 19,
-      attribution: '© OpenStreetMap'
+      attribution: '© OpenStreetMap © CARTO'
     }).addTo(map);
 
     L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+    // Layer groups for boundaries
+    var stateBoundaries = L.layerGroup();
+
+    var overlayMaps = {
+      "🗺️ State Boundaries": stateBoundaries
+    };
+
+    L.control.layers(null, overlayMaps, { position: 'topright', collapsed: false }).addTo(map);
+
+    // Load boundaries layer
+    fetch('https://raw.githubusercontent.com/datameet/maps/master/States/Admin2.topo.json')
+      .then(res => res.json())
+      .then(data => {
+        L.geoJSON(data, {
+          style: { color: '#007AFF', weight: 1.5, fillOpacity: 0.05 }
+        }).addTo(stateBoundaries);
+      }).catch(e => console.log(e));
+
+    stateBoundaries.addTo(map);
+
+    // Smooth zoom function when selecting a state
+    function zoomToState(value) {
+      var coords = value.split(',');
+      var lat = parseFloat(coords[0]);
+      var lng = parseFloat(coords[1]);
+      var zoom = parseInt(coords[2]);
+      map.flyTo([lat, lng], zoom, { duration: 1.2 });
+    }
   </script>
 </body>
 </html>
