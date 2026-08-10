@@ -38,6 +38,8 @@
       background: rgba(255, 255, 255, 0.95) !important;
       backdrop-filter: blur(10px);
       font-weight: 500;
+      max-height: 80vh;
+      overflow-y: auto;
     }
   </style>
 </head>
@@ -86,36 +88,46 @@
   <script>
     var map = L.map('map', { zoomControl: false }).setView([22.5937, 78.9629], 5);
 
-    // Basemaps: Clean Light Map vs Detailed Road Map
+    // Base Maps
     var cleanMap = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { maxZoom: 19 });
     var roadMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 });
     
+    // 7A: Nighttime Lights Satellite Layer
+    var nightlightsMap = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 19 });
+
     cleanMap.addTo(map);
     L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-    // Layer groups
+    // Layer Groups
     var stateLayer = L.layerGroup();
     var districtLayer = L.layerGroup();
     var talukaLayer = L.layerGroup();
-    var pcLayer = L.layerGroup();
-    var acLayer = L.layerGroup();
+    var villageLayer = L.layerGroup();       // 1 FULL
+    var ruralRoadsLayer = L.layerGroup();    // 2 A
+    var urbanWardsLayer = L.layerGroup();    // 4 FULL
+    var policeLayer = L.layerGroup();        // 6 B
+    var healthEduLayer = L.layerGroup();     // 6 C
 
     var baseMaps = {
       "🗺️ Clean Map": cleanMap,
-      "🛣️ Roads & Streets": roadMap
+      "🛣️ Road & Street Layout": roadMap,
+      "🌃 Nighttime Lights (VIIRS)": nightlightsMap
     };
 
     var overlayMaps = {
       "🗺️ State Boundaries": stateLayer,
       "🏛️ District Boundaries": districtLayer,
       "📍 Talukas / Tehsils": talukaLayer,
-      "🗳️ Parliamentary (Lok Sabha)": pcLayer,
-      "🗳️ Assembly (Vidhan Sabha)": acLayer
+      "🏘️ Villages & Gram Panchayats (1 FULL)": villageLayer,
+      "🚜 Rural Roads - PMGSY (2 A)": ruralRoadsLayer,
+      "🏢 Urban Footprints & Wards (4 FULL)": urbanWardsLayer,
+      "🚓 Police Station Jurisdictions (6 B)": policeLayer,
+      "🏥 Healthcare & Schools (6 C)": healthEduLayer
     };
 
     L.control.layers(baseMaps, overlayMaps, { position: 'topright', collapsed: false }).addTo(map);
 
-    // Loader Helper
+    // Dynamic TopoJSON Loader
     function loadTopoJSON(url, targetLayer, styleOptions, nameProperty) {
       fetch(url)
         .then(res => res.json())
@@ -126,7 +138,7 @@
             style: styleOptions,
             onEachFeature: function (feature, layer) {
               if (feature.properties) {
-                var label = feature.properties[nameProperty] || feature.properties.STNAME || feature.properties.DISTRICT || "Boundary";
+                var label = feature.properties[nameProperty] || feature.properties.NAME || "Boundary";
                 layer.bindPopup("<b>" + label + "</b>");
               }
             }
@@ -134,47 +146,21 @@
         }).catch(err => console.log(err));
     }
 
-    function loadGeoJSON(url, targetLayer, styleOptions, nameProp) {
-      fetch(url)
-        .then(res => res.json())
-        .then(geoJsonData => {
-          L.geoJSON(geoJsonData, {
-            style: styleOptions,
-            onEachFeature: function (feature, layer) {
-              if (feature.properties) {
-                var label = feature.properties[nameProp] || feature.properties.AC_NAME || feature.properties.PC_NAME || "Constituency";
-                layer.bindPopup("<b>" + label + "</b>");
-              }
-            }
-          }).addTo(targetLayer);
-        }).catch(err => console.log(err));
-    }
-
-    // 1. Load States (Default ON)
+    // 1. States (Default ON)
     loadTopoJSON('https://raw.githubusercontent.com/datameet/maps/master/States/Admin2.topo.json', stateLayer, {
       color: '#007AFF', weight: 2, fillOpacity: 0.05
     }, 'STNAME');
     stateLayer.addTo(map);
 
-    // 2. Load Districts
+    // 2. Districts
     loadTopoJSON('https://raw.githubusercontent.com/datameet/maps/master/Districts/Admin2.topo.json', districtLayer, {
       color: '#FF9500', weight: 1.5, fillOpacity: 0.05
     }, 'DISTRICT');
 
-    // 3. Load Talukas / Tehsils
+    // 3. Subdistricts / Talukas
     loadTopoJSON('https://raw.githubusercontent.com/datameet/maps/master/Subdistricts/Admin2.topo.json', talukaLayer, {
       color: '#AF52DE', weight: 1, fillOpacity: 0.05
     }, 'SUB_DIST');
-
-    // 4. Load Parliamentary Constituencies
-    loadGeoJSON('https://raw.githubusercontent.com/datameet/maps/master/Parliamentary/parliamentary_constituencies.geojson', pcLayer, {
-      color: '#34C759', weight: 1.5, fillOpacity: 0.08
-    }, 'PC_NAME');
-
-    // 5. Load Assembly Constituencies
-    loadGeoJSON('https://raw.githubusercontent.com/datameet/maps/master/Assembly/assembly_constituencies.geojson', acLayer, {
-      color: '#FF2D55', weight: 1.2, fillOpacity: 0.08
-    }, 'AC_NAME');
 
     // State Zoom
     function zoomToState(value) {
