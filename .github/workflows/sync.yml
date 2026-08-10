@@ -13,6 +13,14 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      - name: Maximize Free Disk Space
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /opt/hostedtoolcache
+          sudo rm -rf /usr/local/share/boost
+
       - name: Transfer Releases Cloud-to-Cloud
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -24,15 +32,31 @@ jobs:
             TAG=$(echo "$rel" | jq -r '.tagName')
             TITLE=$(echo "$rel" | jq -r '.name // .tagName')
             
-            DIR="./tmp_download"
-            rm -rf "$DIR" && mkdir -p "$DIR"
+            echo "=========================================="
+            echo " Processing Tag: $TAG"
+            echo "=========================================="
             
-            gh release download "$TAG" -R "$SOURCE_REPO" -D "$DIR" --clobber || true
+            # Create container for this release tag
             gh release create "$TAG" -R "$TARGET_REPO" --title "$TITLE" || true
-            
-            FILES=$(find "$DIR" -maxdepth 1 -type f)
-            if [ -n "$FILES" ]; then
-              gh release upload "$TAG" -R "$TARGET_REPO" $FILES --clobber
-            fi
-            rm -rf "$DIR"
+
+            # Get list of files in this release
+            ASSETS=$(gh release view "$TAG" -R "$SOURCE_REPO" --json assets -q '.assets[].name')
+
+            # Transfer each file individually to save space
+            for ASSET in $ASSETS; do
+              echo "Transferring file: $ASSET"
+              DIR="./tmp_download"
+              rm -rf "$DIR" && mkdir -p "$DIR"
+
+              # Download single file
+              gh release download "$TAG" -R "$SOURCE_REPO" -p "$ASSET" -D "$DIR" --clobber || continue
+
+              # Upload single file
+              if [ -f "$DIR/$ASSET" ]; then
+                gh release upload "$TAG" -R "$TARGET_REPO" "$DIR/$ASSET" --clobber
+              fi
+
+              # Clean disk immediately
+              rm -rf "$DIR"
+            done
           done
