@@ -1,4 +1,4 @@
-name: Sync 160GB Geodata Releases
+name: Selected Geodata
 
 on:
   workflow_dispatch:
@@ -21,42 +21,45 @@ jobs:
           sudo rm -rf /opt/hostedtoolcache
           sudo rm -rf /usr/local/share/boost
 
-      - name: Transfer Releases Cloud-to-Cloud
+      - name: Transfer Selected Releases
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SOURCE_REPO: "yashveeeeeeer/india-geodata"
           TARGET_REPO: "${{ github.repository }}"
         run: |
-          RELEASES=$(gh release list -R "$SOURCE_REPO" --limit 1000 --json tagName,name)
-          echo "$RELEASES" | jq -c '.[]' | while read -r rel; do
-            TAG=$(echo "$rel" | jq -r '.tagName')
-            TITLE=$(echo "$rel" | jq -r '.name // .tagName')
-            
-            echo "=========================================="
-            echo " Processing Tag: $TAG"
-            echo "=========================================="
-            
-            # Create container for this release tag
-            gh release create "$TAG" -R "$TARGET_REPO" --title "$TITLE" || true
+          # List of EXACT tags selected: Villages, Rural Roads, Buildings, Urban, Police, Health, Education, Nightlights
+          TARGET_TAGS=(
+            "admin/villages"
+            "admin/panchayats"
+            "admin/blocks"
+            "infrastructure/rural_roads"
+            "buildings"
+            "urban"
+            "police"
+            "healthcare"
+            "education"
+            "remote-sensing/nightlights"
+          )
 
-            # Get list of files in this release
-            ASSETS=$(gh release view "$TAG" -R "$SOURCE_REPO" --json assets -q '.assets[].name')
+          for TAG in "${TARGET_TAGS[@]}"; do
+            echo "=========================================="
+            echo " Processing Target Tag: $TAG"
+            echo "=========================================="
+            
+            gh release create "$TAG" -R "$TARGET_REPO" --title "$TAG" || true
+            ASSETS=$(gh release view "$TAG" -R "$SOURCE_REPO" --json assets -q '.assets[].name' || true)
 
-            # Transfer each file individually to save space
             for ASSET in $ASSETS; do
               echo "Transferring file: $ASSET"
               DIR="./tmp_download"
               rm -rf "$DIR" && mkdir -p "$DIR"
 
-              # Download single file
               gh release download "$TAG" -R "$SOURCE_REPO" -p "$ASSET" -D "$DIR" --clobber || continue
 
-              # Upload single file
               if [ -f "$DIR/$ASSET" ]; then
                 gh release upload "$TAG" -R "$TARGET_REPO" "$DIR/$ASSET" --clobber
               fi
 
-              # Clean disk immediately
               rm -rf "$DIR"
             done
           done
