@@ -1,0 +1,40 @@
+name: Sync 160GB Geodata Releases
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync-releases:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Transfer Releases Cloud-to-Cloud
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SOURCE_REPO: "yashveeeeeeer/india-geodata"
+          TARGET_REPO: "${{ github.repository }}"
+        run: |
+          RELEASES=$(gh release list -R "$SOURCE_REPO" --limit 1000 --json tagName,title,notes)
+          echo "$RELEASES" | jq -c '.[]' | while read -r rel; do
+            TAG=$(echo "$rel" | jq -r '.tagName')
+            TITLE=$(echo "$rel" | jq -r '.title // .tagName')
+            NOTES=$(echo "$rel" | jq -r '.notes // "Geospatial data release"')
+            
+            DIR="./tmp_download"
+            rm -rf "$DIR" && mkdir -p "$DIR"
+            
+            gh release download "$TAG" -R "$SOURCE_REPO" -D "$DIR" --clobber || true
+            gh release create "$TAG" -R "$TARGET_REPO" --title "$TITLE" --notes "$NOTES" || true
+            
+            FILES=$(find "$DIR" -maxdepth 1 -type f)
+            if [ -n "$FILES" ]; then
+              gh release upload "$TAG" -R "$TARGET_REPO" $FILES --clobber
+            fi
+            rm -rf "$DIR"
+          done
+
