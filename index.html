@@ -30,17 +30,29 @@
       cursor: pointer;
     }
     
+    /* Unified Top Left Control Panel */
     .control-panel {
       position: absolute; top: 15px; left: 15px;
       z-index: 1000; background: rgba(255, 255, 255, 0.95);
-      padding: 8px 12px; border-radius: 14px; box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-      backdrop-filter: blur(10px); display: flex; flex-direction: column; gap: 6px;
+      padding: 10px 14px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+      backdrop-filter: blur(10px); display: flex; flex-direction: column; gap: 8px;
+      width: 260px;
     }
 
-    .state-select {
-      font-size: 15px; font-weight: 600; color: #1c1c1e;
+    .state-select, .search-input {
+      font-size: 14px; font-weight: 600; color: #1c1c1e;
       background: #f2f2f7; border: 1px solid #d1d1d6; border-radius: 10px;
       padding: 8px 12px; outline: none; -webkit-appearance: none;
+    }
+
+    .search-box {
+      display: flex; gap: 6px;
+    }
+
+    .search-btn {
+      background: #007AFF; color: #fff; border: none;
+      border-radius: 10px; padding: 8px 12px; font-weight: 600;
+      cursor: pointer; font-size: 13px;
     }
 
     .leaflet-right { right: 15px !important; }
@@ -60,8 +72,9 @@
 </head>
 <body>
 
-  <!-- State Dropdown -->
+  <!-- Top-Left Navigation & Search Panel -->
   <div class="control-panel">
+    <!-- State Selection Dropdown -->
     <select id="stateDropdown" class="state-select" onchange="zoomToState(this.value)">
       <option value="22.5937,78.9629,5">India</option>
       <option value="15.9129,79.7400,7">Andhra Pradesh</option>
@@ -96,6 +109,12 @@
       <option value="22.9868,87.8550,7">West Bengal</option>
       <option value="28.7041,77.1025,10">Delhi (NCT)</option>
     </select>
+
+    <!-- Search Box for Cities, Towns, Villages -->
+    <div class="search-box">
+      <input type="text" id="searchInput" class="search-input" placeholder="🔍 Search city, town, village..." onkeypress="handleSearchKey(event)" />
+      <button class="search-btn" onclick="searchPlace()">Search</button>
+    </div>
   </div>
 
   <div id="map"></div>
@@ -119,32 +138,7 @@
       doubleClickZoom: true
     }).setView([22.5937, 78.9629], 5);
 
-    // Direct Spot Zoom Function
-    function zoomToLocation(e) {
-      var latlng = e.latlng;
-      if (!latlng) return;
-
-      var currentZoom = map.getZoom();
-      var nextZoom;
-
-      if (currentZoom < 7) {
-        nextZoom = 9;     // Country -> State view
-      } else if (currentZoom < 10) {
-        nextZoom = 12;    // State view -> City/District view (e.g. Junagadh)
-      } else if (currentZoom < 13) {
-        nextZoom = 15;    // City view -> Town/Street view
-      } else {
-        nextZoom = Math.min(currentZoom + 2, 18);
-      }
-
-      map.flyTo(latlng, nextZoom, {
-        duration: 0.8,
-        animate: true
-      });
-    }
-
-    // Tap anywhere on the map background to zoom directly into that location
-    map.on('click', zoomToLocation);
+    var searchMarker = null;
 
     // Basemaps
     var cleanMap = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { maxZoom: 19 });
@@ -153,6 +147,36 @@
 
     cleanMap.addTo(map);
     L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+    // Smart Tap & Location Finder (Looks up town/city name under cursor)
+    function handleMapTap(latlng) {
+      if (!latlng) return;
+
+      var currentZoom = map.getZoom();
+      var nextZoom = currentZoom < 8 ? 10 : (currentZoom < 12 ? 14 : Math.min(currentZoom + 2, 18));
+
+      map.flyTo(latlng, nextZoom, { duration: 0.8 });
+
+      // Lookup exact place name at tapped coordinates
+      fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latlng.lat}&lon=${latlng.lng}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data && data.display_name) {
+            var placeName = data.address.city || data.address.town || data.address.village || data.address.suburb || data.display_name.split(',')[0];
+            var fullAddr = data.display_name;
+
+            if (searchMarker) map.removeLayer(searchMarker);
+            searchMarker = L.marker(latlng).addTo(map)
+              .bindPopup(`<b>📍 ${placeName}</b><br><small>${fullAddr}</small>`)
+              .openPopup();
+          }
+        }).catch(err => console.log('Location lookup pending...'));
+    }
+
+    // Tap map background to zoom & identify location
+    map.on('click', function(e) {
+      handleMapTap(e.latlng);
+    });
 
     // Layer Groups
     var stateLayer = L.layerGroup();
@@ -184,7 +208,7 @@
 
     L.control.layers(baseMaps, overlayMaps, { position: 'topright', collapsed: false }).addTo(map);
 
-    // Dynamic TopoJSON Loader with Spot Zooming
+    // Dynamic TopoJSON Loader
     function loadTopoJSON(url, targetLayer, styleOptions, nameProperty) {
       fetch(url)
         .then(res => res.json())
@@ -196,14 +220,13 @@
             style: styleOptions,
             onEachFeature: function (feature, layer) {
               var label = feature.properties ? (feature.properties[nameProperty] || feature.properties.NAME || "Boundary") : "Boundary";
-              layer.bindPopup("<b>" + label + "</b>");
-
-              // When tapping anywhere inside a boundary line, fly to that EXACT tapped spot!
+              
               layer.on('click', function (e) {
                 L.DomEvent.stopPropagation(e);
-                zoomToLocation(e);
-                layer.openPopup(e.latlng);
+                handleMapTap(e.latlng);
               });
+
+              layer.bindPopup("<b>" + label + "</b>");
             }
           }).addTo(targetLayer);
         }).catch(err => console.log(err));
@@ -225,10 +248,39 @@
       color: '#AF52DE', weight: 1, fillOpacity: 0.05
     }, 'SUB_DIST');
 
-    // State Dropdown Navigation
+    // Dropdown State Navigation
     function zoomToState(value) {
       var coords = value.split(',');
       map.flyTo([parseFloat(coords[0]), parseFloat(coords[1])], parseInt(coords[2]), { duration: 1.2 });
+    }
+
+    // Search Place Function
+    function searchPlace() {
+      var query = document.getElementById('searchInput').value;
+      if (!query) return;
+
+      fetch(`https://nominatim.openstreetmap.org/search?format=json&countrycodes=in&q=${encodeURIComponent(query)}`)
+        .then(res => res.json())
+        .then(results => {
+          if (results && results.length > 0) {
+            var item = results[0];
+            var lat = parseFloat(item.lat);
+            var lon = parseFloat(item.lon);
+
+            map.flyTo([lat, lon], 13, { duration: 1.2 });
+
+            if (searchMarker) map.removeLayer(searchMarker);
+            searchMarker = L.marker([lat, lon]).addTo(map)
+              .bindPopup(`<b>📍 ${item.display_name.split(',')[0]}</b><br><small>${item.display_name}</small>`)
+              .openPopup();
+          } else {
+            alert('Place not found. Please try another name.');
+          }
+        }).catch(err => alert('Search error. Check network connection.'));
+    }
+
+    function handleSearchKey(e) {
+      if (e.key === 'Enter') searchPlace();
     }
   </script>
 </body>
