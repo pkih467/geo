@@ -24,11 +24,10 @@
   <style>
     body, html { margin: 0; padding: 0; height: 100%; width: 100%; background: #000; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     
-    /* Touch gesture handling fix for iPad/iPhone */
     #map { 
       height: 100%; 
       width: 100%; 
-      touch-action: auto !important; 
+      cursor: pointer;
     }
     
     .control-panel {
@@ -64,7 +63,7 @@
   <!-- State Dropdown -->
   <div class="control-panel">
     <select id="stateDropdown" class="state-select" onchange="zoomToState(this.value)">
-      <option value="22.5937,78.9629,5">🇮🇳 India</option>
+      <option value="22.5937,78.9629,5">India</option>
       <option value="15.9129,79.7400,7">Andhra Pradesh</option>
       <option value="28.2180,94.7278,7">Arunachal Pradesh</option>
       <option value="26.2006,92.9376,7">Assam</option>
@@ -102,7 +101,7 @@
   <div id="map"></div>
 
   <script>
-    // PMTiles Protocol
+    // PMTiles Protocol Setup
     let protocol = new pmtiles.Protocol();
     leaflet.TileLayer.addInitHook(function() {
       if (this.options.url && this.options.url.endsWith('.pmtiles')) {
@@ -111,15 +110,24 @@
       }
     });
 
-    // Map initialization with full multi-touch gesture support
+    // Map initialization
     var map = L.map('map', { 
       zoomControl: false,
       dragging: true,
       touchZoom: true,
       scrollWheelZoom: true,
-      doubleClickZoom: true,
-      bounceAtZoomLimits: false
+      doubleClickZoom: true
     }).setView([22.5937, 78.9629], 5);
+
+    // General Map Tap/Click: Zooms directly into whatever spot you tap on (e.g., Junagadh)
+    map.on('click', function(e) {
+      var currentZoom = map.getZoom();
+      var targetZoom = currentZoom < 8 ? 9 : (currentZoom < 11 ? 12 : currentZoom + 2);
+      map.flyTo(e.latlng, Math.min(targetZoom, 18), {
+        duration: 0.8,
+        animate: true
+      });
+    });
 
     // Basemaps
     var cleanMap = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { maxZoom: 19 });
@@ -139,7 +147,7 @@
     var policeLayer = L.layerGroup();
     var healthEduLayer = L.layerGroup();
 
-    // Clean Names Menu (NO Codes)
+    // Clean Names Menu
     var baseMaps = {
       "🗺️ Clean Map": cleanMap,
       "🛣️ Road & Street Layout": roadMap,
@@ -159,7 +167,7 @@
 
     L.control.layers(baseMaps, overlayMaps, { position: 'topright', collapsed: false }).addTo(map);
 
-    // Dynamic TopoJSON Loader with Reliable Touch/Click Zoom
+    // Dynamic TopoJSON Loader with Feature Zoom
     function loadTopoJSON(url, targetLayer, styleOptions, nameProperty) {
       fetch(url)
         .then(res => res.json())
@@ -172,8 +180,7 @@
             onEachFeature: function (feature, layer) {
               var label = feature.properties ? (feature.properties[nameProperty] || feature.properties.NAME || "Boundary") : "Boundary";
               
-              // Tap/click to zoom in directly
-              layer.on('click tap', function (e) {
+              layer.on('click', function (e) {
                 L.DomEvent.stopPropagation(e);
                 if (e.target && e.target.getBounds) {
                   map.fitBounds(e.target.getBounds(), {
