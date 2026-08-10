@@ -5,14 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>India Geodata - Ultra Detail</title>
+  <title>India</title>
   
   <!-- Leaflet CSS & JS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://unpkg.com/topojson-client@3"></script>
   
-  <!-- PMTiles Engine for Ultra-High Detail Vector Streaming -->
+  <!-- PMTiles Engine -->
   <script src="https://unpkg.com/pmtiles@2.11.0/dist/index.js"></script>
 
   <style>
@@ -52,7 +52,7 @@
   <!-- State Dropdown -->
   <div class="control-panel">
     <select id="stateDropdown" class="state-select" onchange="zoomToState(this.value)">
-      <option value="22.5937,78.9629,5">🇮🇳 Entire India</option>
+      <option value="22.5937,78.9629,5">🇮🇳 India</option>
       <option value="15.9129,79.7400,7">Andhra Pradesh</option>
       <option value="28.2180,94.7278,7">Arunachal Pradesh</option>
       <option value="26.2006,92.9376,7">Assam</option>
@@ -109,36 +109,36 @@
     cleanMap.addTo(map);
     L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-    // Layer Groups for your Synced Data
+    // Layer Groups
     var stateLayer = L.layerGroup();
     var districtLayer = L.layerGroup();
     var talukaLayer = L.layerGroup();
-    var villageLayer = L.layerGroup();       // 1 FULL
-    var ruralRoadsLayer = L.layerGroup();    // 2 A
-    var urbanWardsLayer = L.layerGroup();    // 4 FULL
-    var policeLayer = L.layerGroup();        // 6 B
-    var healthEduLayer = L.layerGroup();     // 6 C
+    var villageLayer = L.layerGroup();
+    var ruralRoadsLayer = L.layerGroup();
+    var urbanWardsLayer = L.layerGroup();
+    var policeLayer = L.layerGroup();
+    var healthEduLayer = L.layerGroup();
 
     var baseMaps = {
-      "🗺️ Clean Map": cleanMap,
+      "🗺️ Map": cleanMap,
       "🛣️ Road & Street Layout": roadMap,
-      "🌃 Nighttime Lights (7 A)": nightlightsMap
+      "🌃 Nighttime Lights": nightlightsMap
     };
 
     var overlayMaps = {
       "🗺️ State Boundaries": stateLayer,
       "🏛️ District Boundaries": districtLayer,
       "📍 Talukas / Tehsils": talukaLayer,
-      "🏘️ Villages & Panchayats (1 FULL)": villageLayer,
-      "🚜 Rural Roads - PMGSY (2 A)": ruralRoadsLayer,
-      "🏢 Buildings & Wards (4 FULL)": urbanWardsLayer,
-      "🚓 Police Jurisdictions (6 B)": policeLayer,
-      "🏥 Health & Education (6 C)": healthEduLayer
+      "🏘️ Villages & Gram Panchayats": villageLayer,
+      "🚜 Rural Roads": ruralRoadsLayer,
+      "🏢 Urban & Wards": urbanWardsLayer,
+      "🚓 Police Station Jurisdictions": policeLayer,
+      "🏥 Healthcare & Schools": healthEduLayer
     };
 
     L.control.layers(baseMaps, overlayMaps, { position: 'topright', collapsed: false }).addTo(map);
 
-    // Load TopoJSON Base Administrative Layers
+    // Load TopoJSON Base Administrative Layers with Automatic Click-to-Zoom
     function loadTopoJSON(url, targetLayer, styleOptions, nameProperty) {
       fetch(url)
         .then(res => res.json())
@@ -152,6 +152,17 @@
                 var label = feature.properties[nameProperty] || feature.properties.NAME || "Boundary";
                 layer.bindPopup("<b>" + label + "</b>");
               }
+              
+              // Automatically zoom in on tap/click
+              layer.on('click', function (e) {
+                if (e.target.getBounds) {
+                  map.flyToBounds(e.target.getBounds(), {
+                    duration: 1.0,
+                    padding: [30, 30],
+                    maxZoom: 13
+                  });
+                }
+              });
             }
           }).addTo(targetLayer);
         }).catch(err => console.log(err));
@@ -173,7 +184,7 @@
       color: '#AF52DE', weight: 1, fillOpacity: 0.05
     }, 'SUB_DIST');
 
-    // Smooth Fly-to Zoom
+    // Dropdown Zoom
     function zoomToState(value) {
       var coords = value.split(',');
       map.flyTo([parseFloat(coords[0]), parseFloat(coords[1])], parseInt(coords[2]), { duration: 1.2 });
