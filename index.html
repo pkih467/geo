@@ -12,6 +12,26 @@
   <meta http-equiv="Expires" content="0" />
 
   <title>India</title>
+
+  <!-- AUTO CACHE CLEANER & RELOADER ENGINE -->
+  <script>
+    (function() {
+      const APP_VERSION = '2.1.0'; // Incremented on each update to force-wipe cache
+      const storedVersion = localStorage.getItem('geo_app_version');
+
+      if (storedVersion !== APP_VERSION) {
+        // Clear stored web cache and register new version
+        localStorage.clear();
+        sessionStorage.clear();
+        localStorage.setItem('geo_app_version', APP_VERSION);
+
+        // If an old version was cached, force Safari to hard reload from server
+        if (storedVersion !== null) {
+          window.location.reload(true);
+        }
+      }
+    })();
+  </script>
   
   <!-- Leaflet CSS & JS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -22,37 +42,53 @@
   <script src="https://unpkg.com/pmtiles@2.11.0/dist/index.js"></script>
 
   <style>
-    body, html { margin: 0; padding: 0; height: 100%; width: 100%; background: #000; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body, html { 
+      margin: 0; padding: 0; height: 100%; width: 100%; 
+      background: #000; 
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      overflow: hidden;
+      touch-action: none !important;
+    }
     
     #map { 
       height: 100%; 
       width: 100%; 
       cursor: pointer;
+      touch-action: none !important;
+      -webkit-user-select: none;
+      user-select: none;
     }
     
-    /* Unified Top Left Control Panel */
+    /* Top Left Control Panel */
     .control-panel {
       position: absolute; top: 15px; left: 15px;
       z-index: 1000; background: rgba(255, 255, 255, 0.95);
-      padding: 10px 14px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+      padding: 12px 14px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.25);
       backdrop-filter: blur(10px); display: flex; flex-direction: column; gap: 8px;
-      width: 260px;
+      width: 270px;
+    }
+
+    .panel-header {
+      font-size: 11px; font-weight: 700; color: #007AFF; 
+      text-transform: uppercase; letter-spacing: 0.5px;
+      display: flex; justify-content: space-between; align-items: center;
     }
 
     .state-select, .search-input {
       font-size: 14px; font-weight: 600; color: #1c1c1e;
       background: #f2f2f7; border: 1px solid #d1d1d6; border-radius: 10px;
-      padding: 8px 12px; outline: none; -webkit-appearance: none;
+      padding: 8px 12px; outline: none; -webkit-appearance: none; width: 100%;
+      box-sizing: border-box;
     }
 
     .search-box {
-      display: flex; gap: 6px;
+      display: flex; gap: 6px; width: 100%;
     }
 
     .search-btn {
       background: #007AFF; color: #fff; border: none;
-      border-radius: 10px; padding: 8px 12px; font-weight: 600;
-      cursor: pointer; font-size: 13px;
+      border-radius: 10px; padding: 8px 14px; font-weight: 600;
+      cursor: pointer; font-size: 13px; white-space: nowrap;
     }
 
     .leaflet-right { right: 15px !important; }
@@ -72,9 +108,20 @@
 </head>
 <body>
 
-  <!-- Top-Left Navigation & Search Panel -->
+  <!-- Top-Left Navigation, Search & State Panel -->
   <div class="control-panel">
-    <!-- State Selection Dropdown -->
+    <div class="panel-header">
+      <span>📍 India Geodata</span>
+      <span style="background: #E5F1FF; padding: 2px 6px; border-radius: 6px;">v2.1 Auto-Sync</span>
+    </div>
+
+    <!-- Search Box -->
+    <div class="search-box">
+      <input type="text" id="searchInput" class="search-input" placeholder="🔍 Search city, town, village..." onkeypress="handleSearchKey(event)" />
+      <button class="search-btn" onclick="searchPlace()">Go</button>
+    </div>
+
+    <!-- State Dropdown -->
     <select id="stateDropdown" class="state-select" onchange="zoomToState(this.value)">
       <option value="22.5937,78.9629,5">India</option>
       <option value="15.9129,79.7400,7">Andhra Pradesh</option>
@@ -109,18 +156,12 @@
       <option value="22.9868,87.8550,7">West Bengal</option>
       <option value="28.7041,77.1025,10">Delhi (NCT)</option>
     </select>
-
-    <!-- Search Box for Cities, Towns, Villages -->
-    <div class="search-box">
-      <input type="text" id="searchInput" class="search-input" placeholder="🔍 Search city, town, village..." onkeypress="handleSearchKey(event)" />
-      <button class="search-btn" onclick="searchPlace()">Search</button>
-    </div>
   </div>
 
   <div id="map"></div>
 
   <script>
-    // PMTiles Protocol Setup
+    // PMTiles Protocol
     let protocol = new pmtiles.Protocol();
     leaflet.TileLayer.addInitHook(function() {
       if (this.options.url && this.options.url.endsWith('.pmtiles')) {
@@ -129,13 +170,13 @@
       }
     });
 
-    // Map initialization
+    // Map initialization with full multi-touch gesture support
     var map = L.map('map', { 
       zoomControl: false,
       dragging: true,
-      touchZoom: true,
-      scrollWheelZoom: true,
-      doubleClickZoom: true
+      touchZoom: 'center',
+      doubleClickZoom: true,
+      bounceAtZoomLimits: false
     }).setView([22.5937, 78.9629], 5);
 
     var searchMarker = null;
@@ -148,7 +189,7 @@
     cleanMap.addTo(map);
     L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-    // Smart Tap & Location Finder (Looks up town/city name under cursor)
+    // Smart Tap & Location Finder
     function handleMapTap(latlng) {
       if (!latlng) return;
 
@@ -157,7 +198,6 @@
 
       map.flyTo(latlng, nextZoom, { duration: 0.8 });
 
-      // Lookup exact place name at tapped coordinates
       fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latlng.lat}&lon=${latlng.lng}`)
         .then(res => res.json())
         .then(data => {
@@ -170,10 +210,9 @@
               .bindPopup(`<b>📍 ${placeName}</b><br><small>${fullAddr}</small>`)
               .openPopup();
           }
-        }).catch(err => console.log('Location lookup pending...'));
+        }).catch(err => console.log('Location lookup...'));
     }
 
-    // Tap map background to zoom & identify location
     map.on('click', function(e) {
       handleMapTap(e.latlng);
     });
@@ -248,7 +287,7 @@
       color: '#AF52DE', weight: 1, fillOpacity: 0.05
     }, 'SUB_DIST');
 
-    // Dropdown State Navigation
+    // State Dropdown Navigation
     function zoomToState(value) {
       var coords = value.split(',');
       map.flyTo([parseFloat(coords[0]), parseFloat(coords[1])], parseInt(coords[2]), { duration: 1.2 });
@@ -274,7 +313,7 @@
               .bindPopup(`<b>📍 ${item.display_name.split(',')[0]}</b><br><small>${item.display_name}</small>`)
               .openPopup();
           } else {
-            alert('Place not found. Please try another name.');
+            alert('Place not found. Please try another search term.');
           }
         }).catch(err => alert('Search error. Check network connection.'));
     }
