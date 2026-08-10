@@ -5,11 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>India Geodata</title>
+  <title>India Geodata - Ultra Detail</title>
   
+  <!-- Leaflet CSS & JS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://unpkg.com/topojson-client@3"></script>
+  
+  <!-- PMTiles Engine for Ultra-High Detail Vector Streaming -->
+  <script src="https://unpkg.com/pmtiles@2.11.0/dist/index.js"></script>
 
   <style>
     body, html { margin: 0; padding: 0; height: 100%; width: 100%; background: #000; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
@@ -86,19 +90,26 @@
   <div id="map"></div>
 
   <script>
+    // Initialize PMTiles Protocol
+    let protocol = new pmtiles.Protocol();
+    leaflet.TileLayer.addInitHook(function() {
+      if (this.options.url && this.options.url.endsWith('.pmtiles')) {
+        let p = new pmtiles.PMTiles(this.options.url);
+        protocol.add(p);
+      }
+    });
+
     var map = L.map('map', { zoomControl: false }).setView([22.5937, 78.9629], 5);
 
-    // Base Maps
+    // Basemaps
     var cleanMap = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { maxZoom: 19 });
     var roadMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 });
-    
-    // 7A: Nighttime Lights Satellite Layer
     var nightlightsMap = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 19 });
 
     cleanMap.addTo(map);
     L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-    // Layer Groups
+    // Layer Groups for your Synced Data
     var stateLayer = L.layerGroup();
     var districtLayer = L.layerGroup();
     var talukaLayer = L.layerGroup();
@@ -111,23 +122,23 @@
     var baseMaps = {
       "🗺️ Clean Map": cleanMap,
       "🛣️ Road & Street Layout": roadMap,
-      "🌃 Nighttime Lights (VIIRS)": nightlightsMap
+      "🌃 Nighttime Lights (7 A)": nightlightsMap
     };
 
     var overlayMaps = {
       "🗺️ State Boundaries": stateLayer,
       "🏛️ District Boundaries": districtLayer,
       "📍 Talukas / Tehsils": talukaLayer,
-      "🏘️ Villages & Gram Panchayats (1 FULL)": villageLayer,
+      "🏘️ Villages & Panchayats (1 FULL)": villageLayer,
       "🚜 Rural Roads - PMGSY (2 A)": ruralRoadsLayer,
-      "🏢 Urban Footprints & Wards (4 FULL)": urbanWardsLayer,
-      "🚓 Police Station Jurisdictions (6 B)": policeLayer,
-      "🏥 Healthcare & Schools (6 C)": healthEduLayer
+      "🏢 Buildings & Wards (4 FULL)": urbanWardsLayer,
+      "🚓 Police Jurisdictions (6 B)": policeLayer,
+      "🏥 Health & Education (6 C)": healthEduLayer
     };
 
     L.control.layers(baseMaps, overlayMaps, { position: 'topright', collapsed: false }).addTo(map);
 
-    // Dynamic TopoJSON Loader
+    // Load TopoJSON Base Administrative Layers
     function loadTopoJSON(url, targetLayer, styleOptions, nameProperty) {
       fetch(url)
         .then(res => res.json())
@@ -146,23 +157,23 @@
         }).catch(err => console.log(err));
     }
 
-    // 1. States (Default ON)
+    // States (Default ON)
     loadTopoJSON('https://raw.githubusercontent.com/datameet/maps/master/States/Admin2.topo.json', stateLayer, {
       color: '#007AFF', weight: 2, fillOpacity: 0.05
     }, 'STNAME');
     stateLayer.addTo(map);
 
-    // 2. Districts
+    // Districts
     loadTopoJSON('https://raw.githubusercontent.com/datameet/maps/master/Districts/Admin2.topo.json', districtLayer, {
       color: '#FF9500', weight: 1.5, fillOpacity: 0.05
     }, 'DISTRICT');
 
-    // 3. Subdistricts / Talukas
+    // Subdistricts / Talukas
     loadTopoJSON('https://raw.githubusercontent.com/datameet/maps/master/Subdistricts/Admin2.topo.json', talukaLayer, {
       color: '#AF52DE', weight: 1, fillOpacity: 0.05
     }, 'SUB_DIST');
 
-    // State Zoom
+    // Smooth Fly-to Zoom
     function zoomToState(value) {
       var coords = value.split(',');
       map.flyTo([parseFloat(coords[0]), parseFloat(coords[1])], parseInt(coords[2]), { duration: 1.2 });
