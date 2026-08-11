@@ -16,7 +16,7 @@
   <!-- AUTO CACHE CLEANER ENGINE -->
   <script>
     (function() {
-      const APP_VERSION = '3.2.0';
+      const APP_VERSION = '3.3.0';
       const storedVersion = localStorage.getItem('geo_app_version');
 
       if (storedVersion !== APP_VERSION) {
@@ -34,8 +34,6 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://unpkg.com/topojson-client@3"></script>
-  
-  <!-- PMTiles Engine -->
   <script src="https://unpkg.com/pmtiles@2.11.0/dist/index.js"></script>
 
   <style>
@@ -154,7 +152,7 @@
   <div class="control-panel">
     <div class="panel-header">
       <span>📍 INDIA MAP</span>
-      <span style="background: #E5F1FF; padding: 2px 6px; border-radius: 6px;">v3.2</span>
+      <span style="background: #E5F1FF; padding: 2px 6px; border-radius: 6px;">v3.3</span>
     </div>
 
     <!-- Search Box -->
@@ -224,7 +222,6 @@
   <div id="map"></div>
 
   <script>
-    // PMTiles Protocol Setup
     let protocol = new pmtiles.Protocol();
     leaflet.TileLayer.addInitHook(function() {
       if (this.options.url && this.options.url.endsWith('.pmtiles')) {
@@ -240,7 +237,6 @@
       doubleClickZoom: true
     }).setView([22.5937, 78.9629], 5);
 
-    // Create Dedicated Leaflet Panes
     map.createPane('popGridPane');
     map.getPane('popGridPane').style.zIndex = 300;
 
@@ -258,10 +254,8 @@
     var isPanelMinimized = false;
     var currentOverlayOpacity = 0.7;
 
-    // Local Storage for Custom Pins Memory
     var storedPinsList = JSON.parse(localStorage.getItem('geo_saved_pins_v1') || '[]');
 
-    // Basemaps
     var cleanMap = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { maxZoom: 19 });
     var roadMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 });
     var satelliteMap = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
@@ -269,7 +263,6 @@
     });
     var nightlightsMap = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 19 });
     
-    // WorldPop Population Layer
     var popDensityMap = L.tileLayer('https://sedac.ciesin.columbia.edu/geoserver/gwc/service/wmts?REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0&LAYER=gpw-v4:gpw-v4-population-density-rev11_2020&STYLE=&TILEMATRIXSET=EPSG:3857&TILEMATRIX=EPSG:3857:{z}&TILEROW={y}&TILECOL={x}&FORMAT=image/png', {
       pane: 'popGridPane',
       opacity: 0.6, 
@@ -279,7 +272,6 @@
     cleanMap.addTo(map);
     L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-    // Layer Groups
     var stateLayer = L.layerGroup();
     var districtLayer = L.layerGroup();
     var talukaLayer = L.layerGroup();
@@ -291,14 +283,12 @@
     var policeLayer = L.layerGroup();
     var healthEduLayer = L.layerGroup();
 
-    // 3 Dedicated Pin Toggle Layers
     var districtPinsLayer = L.layerGroup().addTo(map);
     var talukaPinsLayer = L.layerGroup().addTo(map);
     var villagePinsLayer = L.layerGroup().addTo(map);
 
     var loadedACFeatures = [];
 
-    // Right-Side Layer Menu (Clean Labels)
     var baseMaps = {
       "🗺️ Clean Map": cleanMap,
       "🛣️ Road Layout": roadMap,
@@ -325,7 +315,6 @@
 
     var layerControl = L.control.layers(baseMaps, overlayMaps, { position: 'topright', collapsed: false }).addTo(map);
 
-    // Header in Top-Right Layer Menu
     var layerContainer = layerControl.getContainer();
     var layerHeader = document.createElement('div');
     layerHeader.style.cssText = 'display:flex; justify-content:space-between; align-items:center; font-weight:700; font-size:12px; border-bottom:1px solid #e5e5ea; padding-bottom:6px; margin-bottom:8px; cursor:pointer; color:#007AFF;';
@@ -347,7 +336,6 @@
       }
     };
 
-    // SVG Color Pin Generator
     function createPinIcon(color) {
       return L.divIcon({
         className: 'custom-pin-icon',
@@ -361,7 +349,6 @@
       });
     }
 
-    // Active Selection Elephant Grey Border (#4A4D52)
     function highlightFeature(targetLayer) {
       if (activeHighlightLayer) map.removeLayer(activeHighlightLayer);
       
@@ -379,7 +366,6 @@
       activeHighlightLayer.bringToFront();
     }
 
-    // Complete Reset Function
     function clearMapAll() {
       if (activeHighlightLayer) {
         map.removeLayer(activeHighlightLayer);
@@ -438,7 +424,6 @@
       return props.ST_NAME || props.st_name || props.STATE || props.state || props.STNAME || "";
     }
 
-    // Smart Map Tap
     function handleMapTap(latlng, featureProps, featureType, targetLayer) {
       if (!latlng) return;
 
@@ -516,7 +501,6 @@
 
     map.on('click', function(e) { handleMapTap(e.latlng, null, 'GENERAL'); });
 
-    // Custom Pin Creator
     function saveCustomPin(lat, lng, defaultName) {
       var pinName = prompt("Enter a Name for this Pin:", defaultName || "Saved Point");
       if (!pinName) return;
@@ -580,22 +564,17 @@
       }
     }
 
-    function fetchGeoData(primaryUrl, fallbackUrl) {
-      return fetch(primaryUrl)
-        .then(res => {
-          if (!res.ok) throw new Error("Primary failed");
-          return res.json();
-        })
-        .catch(() => {
-          console.warn("Primary fetch failed, using fallback mirror:", fallbackUrl);
-          return fetch(fallbackUrl).then(res => res.json());
-        });
+    // Direct GitHub Raw Fetch Engine (Bypasses jsDelivr 50MB restriction)
+    function fetchDirectGeoJSON(url) {
+      return fetch(url).then(res => {
+        if (!res.ok) throw new Error("Fetch failed: " + res.status);
+        return res.json();
+      });
     }
 
-    var pcPrimary = 'https://cdn.jsdelivr.net/gh/datameet/maps@master/Parliamentary/parliamentary_constituencies.geojson';
-    var pcFallback = 'https://raw.githubusercontent.com/datameet/maps/master/Parliamentary/parliamentary_constituencies.geojson';
-
-    fetchGeoData(pcPrimary, pcFallback)
+    // 1. Parliamentary (Fuchsia) - Direct Github Raw
+    var pcUrl = 'https://raw.githubusercontent.com/datameet/maps/master/Parliamentary/parliamentary_constituencies.geojson';
+    fetchDirectGeoJSON(pcUrl)
       .then(geoJsonData => {
         L.geoJSON(geoJsonData, {
           pane: 'electoralPane',
@@ -612,12 +591,11 @@
             });
           }
         }).addTo(pcLayer);
-      }).catch(err => console.error('PC Load Failure', err));
+      }).catch(err => console.error('PC Load Error:', err));
 
-    var acPrimary = 'https://cdn.jsdelivr.net/gh/datameet/maps@master/Assembly/assembly_constituencies.geojson';
-    var acFallback = 'https://raw.githubusercontent.com/datameet/maps/master/Assembly/assembly_constituencies.geojson';
-
-    fetchGeoData(acPrimary, acFallback)
+    // 2. Assembly / Vidhan Sabha (Cyan) - Direct Github Raw (85MB)
+    var acUrl = 'https://raw.githubusercontent.com/datameet/maps/master/Assembly/assembly_constituencies.geojson';
+    fetchDirectGeoJSON(acUrl)
       .then(geoJsonData => {
         if (geoJsonData.features) loadedACFeatures = geoJsonData.features;
         L.geoJSON(geoJsonData, {
@@ -635,11 +613,12 @@
             });
           }
         }).addTo(acLayer);
-      }).catch(err => console.log('AC Load Failure', err));
+      }).catch(err => console.error('AC Load Error:', err));
 
-    function loadTopoJSON(primaryUrl, fallbackUrl, targetLayer, styleOptions, nameProperty) {
+    // TopoJSON Loader for Admin Layers
+    function loadTopoJSON(url, targetLayer, styleOptions, nameProperty) {
       styleOptions.pane = 'adminBoundaryPane';
-      fetchGeoData(primaryUrl, fallbackUrl)
+      fetchDirectGeoJSON(url)
         .then(topoData => {
           var objName = Object.keys(topoData.objects)[0];
           var geoJsonData = topojson.feature(topoData, topoData.objects[objName]);
@@ -655,21 +634,18 @@
               layer.bindPopup("<b>" + label + "</b>");
             }
           }).addTo(targetLayer);
-        }).catch(err => console.error('TopoJSON load error', err));
+        }).catch(err => console.error('TopoJSON Error:', err));
     }
 
-    var statePrimary = 'https://cdn.jsdelivr.net/gh/datameet/maps@master/States/Admin2.topo.json';
-    var stateFallback = 'https://raw.githubusercontent.com/datameet/maps/master/States/Admin2.topo.json';
-    loadTopoJSON(statePrimary, stateFallback, stateLayer, { color: '#0051FF', weight: 2.8, dashArray: '6, 6', fillOpacity: 0.02 }, 'STNAME');
+    var stateUrl = 'https://raw.githubusercontent.com/datameet/maps/master/States/Admin2.topo.json';
+    loadTopoJSON(stateUrl, stateLayer, { color: '#0051FF', weight: 2.8, dashArray: '6, 6', fillOpacity: 0.02 }, 'STNAME');
     stateLayer.addTo(map);
 
-    var distPrimary = 'https://cdn.jsdelivr.net/gh/datameet/maps@master/Districts/Admin2.topo.json';
-    var distFallback = 'https://raw.githubusercontent.com/datameet/maps/master/Districts/Admin2.topo.json';
-    loadTopoJSON(distPrimary, distFallback, districtLayer, { color: '#FF9500', weight: 2.0, opacity: 0.85, fillOpacity: 0.04 }, 'DISTRICT');
+    var distUrl = 'https://raw.githubusercontent.com/datameet/maps/master/Districts/Admin2.topo.json';
+    loadTopoJSON(distUrl, districtLayer, { color: '#FF9500', weight: 2.0, opacity: 0.85, fillOpacity: 0.04 }, 'DISTRICT');
 
-    var subDistPrimary = 'https://cdn.jsdelivr.net/gh/datameet/maps@master/Subdistricts/Admin2.topo.json';
-    var subDistFallback = 'https://raw.githubusercontent.com/datameet/maps/master/Subdistricts/Admin2.topo.json';
-    loadTopoJSON(subDistPrimary, subDistFallback, talukaLayer, { color: '#AF52DE', weight: 1.5, opacity: 0.8, fillOpacity: 0.04 }, 'SUB_DIST');
+    var subDistUrl = 'https://raw.githubusercontent.com/datameet/maps/master/Subdistricts/Admin2.topo.json';
+    loadTopoJSON(subDistUrl, talukaLayer, { color: '#AF52DE', weight: 1.5, opacity: 0.8, fillOpacity: 0.04 }, 'SUB_DIST');
 
     function zoomToState(value) {
       var coords = value.split(',');
