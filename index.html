@@ -16,7 +16,7 @@
   <!-- AUTO CACHE CLEANER & RELOADER ENGINE -->
   <script>
     (function() {
-      const APP_VERSION = '2.2.0';
+      const APP_VERSION = '2.3.0';
       const storedVersion = localStorage.getItem('geo_app_version');
 
       if (storedVersion !== APP_VERSION) {
@@ -62,7 +62,7 @@
       z-index: 1000; background: rgba(255, 255, 255, 0.95);
       padding: 12px 14px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.25);
       backdrop-filter: blur(10px); display: flex; flex-direction: column; gap: 8px;
-      width: 280px;
+      width: 285px;
     }
 
     .panel-header {
@@ -86,12 +86,17 @@
       cursor: pointer; font-size: 13px; white-space: nowrap;
     }
 
-    /* Sliding Info Panel (Hierarchy & Nesting) */
+    .opacity-control {
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: 12px; font-weight: 600; color: #3a3a3c; margin-top: 2px;
+    }
+
+    /* Sliding Info Panel with Minimizer */
     .info-panel {
-      position: absolute; top: 180px; left: 15px;
+      position: absolute; top: 225px; left: 15px;
       z-index: 1000; background: rgba(255, 255, 255, 0.98);
-      padding: 16px; border-radius: 18px; box-shadow: 0 6px 25px rgba(0,0,0,0.3);
-      backdrop-filter: blur(12px); width: 310px; max-height: 55vh;
+      padding: 14px; border-radius: 18px; box-shadow: 0 6px 25px rgba(0,0,0,0.3);
+      backdrop-filter: blur(12px); width: 285px; max-height: 55vh;
       overflow-y: auto; display: none; flex-direction: column; gap: 10px;
       animation: slideIn 0.3s ease-out;
     }
@@ -106,12 +111,21 @@
       border-bottom: 1px solid #e5e5ea; padding-bottom: 8px;
     }
 
-    .info-title { font-size: 16px; font-weight: 700; color: #1c1c1e; margin: 0; }
-    .close-btn { background: #e5e5ea; border: none; border-radius: 50%; width: 26px; height: 26px; font-weight: 700; cursor: pointer; }
+    .info-title { font-size: 15px; font-weight: 700; color: #1c1c1e; margin: 0; }
+    
+    .panel-actions { display: flex; gap: 6px; }
+    .action-btn { 
+      background: #e5e5ea; border: none; border-radius: 50%; 
+      width: 26px; height: 26px; font-weight: 700; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; font-size: 14px;
+    }
 
-    .section-tag { font-size: 12px; font-weight: 700; text-transform: uppercase; color: #8e8e93; margin-top: 6px; }
-    .data-badge { background: #e5f1ff; color: #007AFF; font-size: 12px; font-weight: 600; padding: 4px 8px; border-radius: 6px; display: inline-block; margin-right: 4px; margin-bottom: 4px; }
+    .section-tag { font-size: 11px; font-weight: 700; text-transform: uppercase; color: #8e8e93; margin-top: 6px; }
+    .data-badge { background: #e5f1ff; color: #007AFF; font-size: 11px; font-weight: 600; padding: 4px 8px; border-radius: 6px; display: inline-block; margin-right: 4px; margin-bottom: 4px; }
     .green-badge { background: #e6f9ed; color: #28a745; }
+
+    /* Custom Colored Marker Pins */
+    .custom-pin-icon { background: none; border: none; }
 
     .leaflet-right { right: 15px !important; }
     .leaflet-top { top: 15px !important; }
@@ -130,11 +144,11 @@
 </head>
 <body>
 
-  <!-- Top-Left Navigation & Search Panel -->
+  <!-- Top-Left Navigation, Search & Opacity Panel -->
   <div class="control-panel">
     <div class="panel-header">
       <span>📍 India Geodata</span>
-      <span style="background: #E5F1FF; padding: 2px 6px; border-radius: 6px;">v2.2 Electoral</span>
+      <span style="background: #E5F1FF; padding: 2px 6px; border-radius: 6px;">v2.3 Custom Pins</span>
     </div>
 
     <!-- Search Box -->
@@ -178,13 +192,22 @@
       <option value="22.9868,87.8550,7">West Bengal</option>
       <option value="28.7041,77.1025,10">Delhi (NCT)</option>
     </select>
+
+    <!-- Overlay Opacity Slider -->
+    <div class="opacity-control">
+      <span>🎨 Layer Transparency:</span>
+      <input type="range" id="opacityRange" min="0.1" max="1.0" step="0.1" value="0.7" oninput="changeOverlayOpacity(this.value)" style="width: 110px;" />
+    </div>
   </div>
 
   <!-- Sliding Geospatial Info Panel -->
   <div id="infoPanel" class="info-panel">
     <div class="info-header">
       <h3 id="panelTitle" class="info-title">Region Details</h3>
-      <button class="close-btn" onclick="closePanel()">✕</button>
+      <div class="panel-actions">
+        <button class="action-btn" id="minBtn" onclick="togglePanelMinimize()">−</button>
+        <button class="action-btn" onclick="closePanel()">✕</button>
+      </div>
     </div>
     <div id="panelContent">Select a constituency or region on the map to view nested details.</div>
   </div>
@@ -208,18 +231,22 @@
       doubleClickZoom: true
     }).setView([22.5937, 78.9629], 5);
 
+    var activeHighlightLayer = null;
     var searchMarker = null;
+    var isPanelMinimized = false;
+    var currentOverlayOpacity = 0.7;
 
-    // Basemaps & WorldPop Population Layer
+    // Basemaps including Satellite Imagery
     var cleanMap = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { maxZoom: 19 });
     var roadMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 });
+    var satelliteMap = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+      maxZoom: 19, attribution: 'Tiles &copy; Esri'
+    });
     var nightlightsMap = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 19 });
     
-    // WorldPop / SEDAC High-Resolution Population Density Layer (Option B)
+    // WorldPop Population Density Layer
     var popDensityMap = L.tileLayer('https://sedac.ciesin.columbia.edu/geoserver/gwc/service/wmts?REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0&LAYER=gpw-v4:gpw-v4-population-density-rev11_2020&STYLE=&TILEMATRIXSET=EPSG:3857&TILEMATRIX=EPSG:3857:{z}&TILEROW={y}&TILECOL={x}&FORMAT=image/png', {
-      opacity: 0.6,
-      maxZoom: 18,
-      attribution: 'WorldPop / CIESIN SEDAC 2020 Grid'
+      opacity: 0.6, maxZoom: 18
     });
 
     cleanMap.addTo(map);
@@ -237,40 +264,93 @@
     var policeLayer = L.layerGroup();
     var healthEduLayer = L.layerGroup();
 
-    // Data structures for nesting queries
     var loadedACFeatures = [];
-    var loadedDistrictFeatures = [];
 
-    // Right-Side Layer Menu with Requested Blue & Green Color Indicators
+    // Right-Side Layer Menu
     var baseMaps = {
       "🗺️ Clean Map": cleanMap,
-      "🛣️ Road & Street Layout": roadMap,
+      "🛣️ Road Layout": roadMap,
+      "🛰️ Satellite Imagery": satelliteMap,
       "🌃 Nighttime Lights": nightlightsMap
     };
 
     var overlayMaps = {
       "<span style='color:#007AFF; font-weight:700;'>🗳️ Parliamentary (Lok Sabha)</span>": pcLayer,
       "<span style='color:#28A745; font-weight:700;'>🗳️ Assembly (Vidhan Sabha)</span>": acLayer,
-      "👥 Population Density Grid": popDensityMap,
+      "👥 Population Grid": popDensityMap,
       "🗺️ State Boundaries": stateLayer,
       "🏛️ District Boundaries": districtLayer,
       "📍 Talukas / Tehsils": talukaLayer,
       "🏘️ Villages & Gram Panchayats": villageLayer,
       "🚜 Rural Roads": ruralRoadsLayer,
       "🏢 Urban & Wards": urbanWardsLayer,
-      "🚓 Police Station Jurisdictions": policeLayer,
+      "🚓 Police Jurisdictions": policeLayer,
       "🏥 Healthcare & Schools": healthEduLayer
     };
 
     L.control.layers(baseMaps, overlayMaps, { position: 'topright', collapsed: false }).addTo(map);
 
-    // Close Sliding Info Panel
-    function closePanel() {
-      document.getElementById('infoPanel').style.display = 'none';
+    // SVG Color Pin Generator
+    function createPinIcon(color) {
+      return L.divIcon({
+        className: 'custom-pin-icon',
+        html: `<svg width="28" height="40" viewBox="0 0 24 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 0C5.37 0 0 5.37 0 12C0 21 12 36 12 36C12 36 24 21 24 12C24 5.37 18.63 0 12 0Z" fill="${color}" stroke="#FFFFFF" stroke-width="2"/>
+                <circle cx="12" cy="12" r="4" fill="#FFFFFF"/>
+               </svg>`,
+        iconSize: [28, 40],
+        iconAnchor: [14, 40],
+        popupAnchor: [0, -36]
+      });
     }
 
-    // Handle Smart Map Tap and Populate Nested Hierarchy
-    function handleMapTap(latlng, featureProps, featureType) {
+    // Active Polygon Highlighting (Fuchsia for PC, Cyan for AC)
+    function highlightFeature(featureGeoJson, color) {
+      if (activeHighlightLayer) map.removeLayer(activeHighlightLayer);
+      activeHighlightLayer = L.geoJSON(featureGeoJson, {
+        style: {
+          color: color,
+          weight: 4,
+          opacity: 1,
+          fillColor: color,
+          fillOpacity: 0.25
+        }
+      }).addTo(map);
+    }
+
+    // Panel Minimizer Toggle
+    function togglePanelMinimize() {
+      var content = document.getElementById('panelContent');
+      var btn = document.getElementById('minBtn');
+      if (isPanelMinimized) {
+        content.style.display = 'block';
+        btn.innerText = '−';
+        isPanelMinimized = false;
+      } else {
+        content.style.display = 'none';
+        btn.innerText = '+';
+        isPanelMinimized = true;
+      }
+    }
+
+    function closePanel() {
+      document.getElementById('infoPanel').style.display = 'none';
+      if (activeHighlightLayer) map.removeLayer(activeHighlightLayer);
+    }
+
+    // Opacity Adjustment
+    function changeOverlayOpacity(val) {
+      currentOverlayOpacity = parseFloat(val);
+      [pcLayer, acLayer, stateLayer, districtLayer, talukaLayer, villageLayer].forEach(layerGroup => {
+        layerGroup.eachLayer(layer => {
+          if (layer.setStyle) layer.setStyle({ fillOpacity: currentOverlayOpacity * 0.1, opacity: currentOverlayOpacity });
+        });
+      });
+      popDensityMap.setOpacity(currentOverlayOpacity);
+    }
+
+    // Smart Map Tap & Named Pin Saver
+    function handleMapTap(latlng, featureProps, featureType, featureGeoJson) {
       if (!latlng) return;
 
       var currentZoom = map.getZoom();
@@ -282,17 +362,24 @@
       var panelContent = document.getElementById('panelContent');
 
       panel.style.display = 'flex';
+      document.getElementById('panelContent').style.display = 'block';
+      document.getElementById('minBtn').innerText = '−';
+      isPanelMinimized = false;
+
+      // Handle Fuchsia/Cyan Highlighting
+      if (featureType === 'PC') highlightFeature(featureGeoJson, '#FF00FF'); // Fuchsia
+      if (featureType === 'AC') highlightFeature(featureGeoJson, '#00FFFF'); // Cyan
+
+      var lat = latlng.lat.toFixed(5);
+      var lng = latlng.lng.toFixed(5);
 
       if (featureType === 'PC') {
         var pcName = featureProps.PC_NAME || featureProps.pc_name || "Parliamentary Constituency";
         var stateName = featureProps.ST_NAME || featureProps.st_name || "India";
         panelTitle.innerText = `🗳️ ${pcName}`;
 
-        // Find underlying ACs that overlap with this PC bounds
-        var pcBounds = L.latLngBounds([latlng]);
-        var matchingACs = loadedACFeatures.filter(ac => {
-          return ac.properties && (ac.properties.PC_NAME === pcName || ac.properties.pc_name === pcName);
-        }).map(ac => ac.properties.AC_NAME || ac.properties.ac_name).filter(Boolean);
+        var matchingACs = loadedACFeatures.filter(ac => ac.properties && (ac.properties.PC_NAME === pcName || ac.properties.pc_name === pcName))
+          .map(ac => ac.properties.AC_NAME || ac.properties.ac_name).filter(Boolean);
 
         var acHTML = matchingACs.length > 0 
           ? matchingACs.map(ac => `<span class="data-badge green-badge">🏛️ ${ac}</span>`).join('') 
@@ -300,43 +387,92 @@
 
         panelContent.innerHTML = `
           <div><small>State:</small> <b>${stateName}</b></div>
-          <div class="section-tag">👥 Population Density (WorldPop)</div>
-          <div>High density grid area ~ 1,200 - 3,500 / sq km</div>
-          
-          <div class="section-tag">🗳️ Underlying Assembly Seats (Vidhan Sabha)</div>
+          <div class="section-tag" style="color:#FF00FF;">✨ Active Highlight: Fuchsia</div>
+          <div class="section-tag">🗳️ Underlying Vidhan Sabha Seats</div>
           <div style="margin-top:4px;">${acHTML}</div>
-          
-          <div class="section-tag">🏘️ Local Villages & Wards</div>
-          <input type="text" class="search-input" placeholder="Filter villages in ${pcName}..." onkeyup="filterVillages(this.value)" style="margin-top:4px;" />
-          <div id="villageList" style="font-size:12px; color:#666; margin-top:6px;">Tap any village layer checkbox to view individual survey boundaries.</div>
+          <div class="section-tag">📍 Coordinates</div>
+          <div>${lat}, ${lng}</div>
+          <button class="search-btn" style="margin-top:8px; width:100%;" onclick="saveCustomPin(${lat}, ${lng})">📌 Save & Share Pin</button>
         `;
       } else if (featureType === 'AC') {
         var acName = featureProps.AC_NAME || featureProps.ac_name || "Assembly Constituency";
         panelTitle.innerText = `🏛️ ${acName}`;
         panelContent.innerHTML = `
           <div class="data-badge green-badge">Vidhan Sabha Constituency</div>
-          <div class="section-tag">👥 Demographics & Density</div>
-          <div>WorldPop Grid: Medium-High Density</div>
-          <div class="section-tag">📍 Nested Administration</div>
-          <div>Includes underlying Gram Panchayats, Urban Wards & Rural PMGSY Road Networks.</div>
+          <div class="section-tag" style="color:#00FFFF;">✨ Active Highlight: Cyan</div>
+          <div class="section-tag">📍 Coordinates</div>
+          <div>${lat}, ${lng}</div>
+          <button class="search-btn" style="margin-top:8px; width:100%;" onclick="saveCustomPin(${lat}, ${lng})">📌 Save & Share Pin</button>
         `;
       } else {
-        // Reverse Geocoding fallback
         fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latlng.lat}&lon=${latlng.lng}`)
           .then(res => res.json())
           .then(data => {
             if (data && data.display_name) {
               var placeName = data.address.city || data.address.town || data.address.village || data.display_name.split(',')[0];
               panelTitle.innerText = `📍 ${placeName}`;
-              panelContent.innerHTML = `<small>${data.display_name}</small>`;
+              panelContent.innerHTML = `
+                <small>${data.display_name}</small>
+                <div class="section-tag">📍 Lat-Long</div>
+                <div><b>${lat}, ${lng}</b></div>
+                <button class="search-btn" style="margin-top:10px; width:100%;" onclick="saveCustomPin(${lat}, ${lng}, '${placeName.replace(/'/g, "")}')">📌 Save & Share Pin</button>
+              `;
             }
-          }).catch(err => console.log('Location pending...'));
+          }).catch(err => console.log('Location lookup...'));
       }
     }
 
     map.on('click', function(e) { handleMapTap(e.latlng, null, 'GENERAL'); });
 
-    // 1. Load Parliamentary Constituencies (BLUE)
+    // Save & Share Pin Creator with Color Rules
+    function saveCustomPin(lat, lng, defaultName) {
+      var pinName = prompt("Enter a Name for this Pin:", defaultName || "Saved Point");
+      if (!pinName) return;
+
+      var tier = prompt("Select Pin Type:\n1 = District (Red)\n2 = Taluka (Royal Blue)\n3 = Village (Violet)", "1");
+      
+      var pinColor = "#FF3B30"; // Red default
+      var typeCode = "dist";
+      if (tier === "2") { pinColor = "#4169E1"; typeCode = "taluka"; } // Royal Blue
+      if (tier === "3") { pinColor = "#8A2BE2"; typeCode = "village"; } // Violet
+
+      dropNamedPin(lat, lng, pinName, pinColor, typeCode, true);
+    }
+
+    function dropNamedPin(lat, lng, name, color, typeCode, openPopup) {
+      var icon = createPinIcon(color);
+      var marker = L.marker([lat, lng], { icon: icon }).addTo(map);
+
+      var shareUrl = `${window.location.origin}${window.location.pathname}?lat=${lat}&lng=${lng}&name=${encodeURIComponent(name)}&type=${typeCode}`;
+
+      marker.bindPopup(`
+        <b>📍 ${name}</b><br>
+        <small>Lat: ${lat}, Lng: ${lng}</small><br>
+        <button onclick="navigator.clipboard.writeText('${shareUrl}'); alert('🔗 Share link copied to clipboard!');" style="margin-top:6px; background:#007AFF; color:#fff; border:none; border-radius:6px; padding:4px 8px; font-size:11px; cursor:pointer;">🔗 Copy Share Link</button>
+      `);
+
+      if (openPopup) marker.openPopup();
+    }
+
+    // Parse URL Params for Shared Pins on Load
+    function checkUrlForSharedPin() {
+      var params = new URLSearchParams(window.location.search);
+      if (params.has('lat') && params.has('lng')) {
+        var lat = parseFloat(params.get('lat'));
+        var lng = parseFloat(params.get('lng'));
+        var name = params.get('name') || "Shared Location";
+        var typeCode = params.get('type') || "dist";
+
+        var color = "#FF3B30"; // Red (District)
+        if (typeCode === "taluka") color = "#4169E1"; // Royal Blue
+        if (typeCode === "village") color = "#8A2BE2"; // Violet
+
+        map.flyTo([lat, lng], 13, { duration: 1.2 });
+        dropNamedPin(lat, lng, name, color, typeCode, true);
+      }
+    }
+
+    // 1. Load Parliamentary (BLUE)
     fetch('https://raw.githubusercontent.com/datameet/maps/master/Parliamentary/parliamentary_constituencies.geojson')
       .then(res => res.json())
       .then(geoJsonData => {
@@ -345,13 +481,13 @@
           onEachFeature: function (feature, layer) {
             layer.on('click', function (e) {
               L.DomEvent.stopPropagation(e);
-              handleMapTap(e.latlng, feature.properties, 'PC');
+              handleMapTap(e.latlng, feature.properties, 'PC', feature);
             });
           }
         }).addTo(pcLayer);
       }).catch(err => console.log('PC load error'));
 
-    // 2. Load Assembly Constituencies (GREEN)
+    // 2. Load Assembly (GREEN)
     fetch('https://raw.githubusercontent.com/datameet/maps/master/Assembly/assembly_constituencies.geojson')
       .then(res => res.json())
       .then(geoJsonData => {
@@ -361,13 +497,13 @@
           onEachFeature: function (feature, layer) {
             layer.on('click', function (e) {
               L.DomEvent.stopPropagation(e);
-              handleMapTap(e.latlng, feature.properties, 'AC');
+              handleMapTap(e.latlng, feature.properties, 'AC', feature);
             });
           }
         }).addTo(acLayer);
       }).catch(err => console.log('AC load error'));
 
-    // TopoJSON Loader for Admin Layers
+    // TopoJSON Loader
     function loadTopoJSON(url, targetLayer, styleOptions, nameProperty) {
       fetch(url)
         .then(res => res.json())
@@ -380,7 +516,7 @@
               var label = feature.properties ? (feature.properties[nameProperty] || "Boundary") : "Boundary";
               layer.on('click', function (e) {
                 L.DomEvent.stopPropagation(e);
-                handleMapTap(e.latlng, feature.properties, 'ADMIN');
+                handleMapTap(e.latlng, feature.properties, 'ADMIN', feature);
               });
               layer.bindPopup("<b>" + label + "</b>");
             }
@@ -388,7 +524,6 @@
         }).catch(err => console.log(err));
     }
 
-    // Administrative Outlines
     loadTopoJSON('https://raw.githubusercontent.com/datameet/maps/master/States/Admin2.topo.json', stateLayer, { color: '#007AFF', weight: 2, fillOpacity: 0.03 }, 'STNAME');
     stateLayer.addTo(map);
 
@@ -414,11 +549,7 @@
             var lon = parseFloat(item.lon);
 
             map.flyTo([lat, lon], 13, { duration: 1.2 });
-
-            if (searchMarker) map.removeLayer(searchMarker);
-            searchMarker = L.marker([lat, lon]).addTo(map)
-              .bindPopup(`<b>📍 ${item.display_name.split(',')[0]}</b><br><small>${item.display_name}</small>`)
-              .openPopup();
+            saveCustomPin(lat, lon, item.display_name.split(',')[0]);
           } else {
             alert('Place not found. Please try another search term.');
           }
@@ -426,10 +557,9 @@
     }
 
     function handleSearchKey(e) { if (e.key === 'Enter') searchPlace(); }
-    function filterVillages(val) {
-      var elem = document.getElementById('villageList');
-      if (val) elem.innerText = `Filtering local habitations for "${val}"...`;
-    }
+
+    // Run URL Pin check on startup
+    checkUrlForSharedPin();
   </script>
 </body>
 </html>
