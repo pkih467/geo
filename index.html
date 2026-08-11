@@ -11,12 +11,12 @@
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
 
-  <title>India Geodata</title>
+  <title>INDIA MAP</title>
 
   <!-- AUTO CACHE CLEANER ENGINE -->
   <script>
     (function() {
-      const APP_VERSION = '3.0.0';
+      const APP_VERSION = '3.2.0';
       const storedVersion = localStorage.getItem('geo_app_version');
 
       if (storedVersion !== APP_VERSION) {
@@ -153,8 +153,8 @@
   <!-- Top-Left Navigation & Controls -->
   <div class="control-panel">
     <div class="panel-header">
-      <span>📍 India Geodata</span>
-      <span style="background: #E5F1FF; padding: 2px 6px; border-radius: 6px;">v3.0 Resilient CDN</span>
+      <span>📍 INDIA MAP</span>
+      <span style="background: #E5F1FF; padding: 2px 6px; border-radius: 6px;">v3.2</span>
     </div>
 
     <!-- Search Box -->
@@ -240,7 +240,7 @@
       doubleClickZoom: true
     }).setView([22.5937, 78.9629], 5);
 
-    // Create Dedicated Leaflet Panes to Prevent Vector Layer Obscuration
+    // Create Dedicated Leaflet Panes
     map.createPane('popGridPane');
     map.getPane('popGridPane').style.zIndex = 300;
 
@@ -283,8 +283,8 @@
     var stateLayer = L.layerGroup();
     var districtLayer = L.layerGroup();
     var talukaLayer = L.layerGroup();
-    var pcLayer = L.layerGroup();          // Parliamentary (FUCHSIA)
-    var acLayer = L.layerGroup();          // Assembly (CYAN)
+    var pcLayer = L.layerGroup();          
+    var acLayer = L.layerGroup();          
     var villageLayer = L.layerGroup();
     var ruralRoadsLayer = L.layerGroup();
     var urbanWardsLayer = L.layerGroup();
@@ -298,7 +298,7 @@
 
     var loadedACFeatures = [];
 
-    // Right-Side Layer Menu
+    // Right-Side Layer Menu (Clean Labels)
     var baseMaps = {
       "🗺️ Clean Map": cleanMap,
       "🛣️ Road Layout": roadMap,
@@ -307,13 +307,13 @@
     };
 
     var overlayMaps = {
-      "<span style='color:#FF00FF; font-weight:700;'>🗳️ Parliamentary (Lok Sabha) [Fuchsia]</span>": pcLayer,
-      "<span style='color:#00FFFF; font-weight:700;'>🗳️ Assembly (Vidhan Sabha) [Cyan]</span>": acLayer,
-      "🔴 District Pins (Red)": districtPinsLayer,
-      "🔵 Taluka Pins (Royal Blue)": talukaPinsLayer,
-      "🟣 Village Pins (Violet)": villagePinsLayer,
+      "<span style='color:#FF00FF; font-weight:700;'>🗳️ Parliamentary (Lok Sabha)</span>": pcLayer,
+      "<span style='color:#00FFFF; font-weight:700;'>🗳️ Assembly (Vidhan Sabha)</span>": acLayer,
+      "🔴 District Pins": districtPinsLayer,
+      "🔵 Taluka Pins": talukaPinsLayer,
+      "🟣 Village Pins": villagePinsLayer,
       "👥 Population Grid": popDensityMap,
-      "🗺️ State Boundaries (Dotted)": stateLayer,
+      "🗺️ State Boundaries": stateLayer,
       "🏛️ District Boundaries": districtLayer,
       "📍 Talukas / Tehsils": talukaLayer,
       "🏘️ Villages & Gram Panchayats": villageLayer,
@@ -368,10 +368,10 @@
       activeHighlightLayer = L.geoJSON(targetLayer.toGeoJSON(), {
         pane: 'selectionHighlightPane',
         style: {
-          color: '#4A4D52',        // Elephant Grey Outline
+          color: '#4A4D52',
           weight: 5,
           opacity: 1,
-          fillColor: '#4A4D52',    // Elephant Grey Fill
+          fillColor: '#4A4D52',
           fillOpacity: 0.45
         }
       }).addTo(map);
@@ -580,7 +580,6 @@
       }
     }
 
-    // High-Availability Failover Data Fetcher
     function fetchGeoData(primaryUrl, fallbackUrl) {
       return fetch(primaryUrl)
         .then(res => {
@@ -593,7 +592,6 @@
         });
     }
 
-    // 1. Load ALL Parliamentary Seats (FUCHSIA GRID) via Failover CDN
     var pcPrimary = 'https://cdn.jsdelivr.net/gh/datameet/maps@master/Parliamentary/parliamentary_constituencies.geojson';
     var pcFallback = 'https://raw.githubusercontent.com/datameet/maps/master/Parliamentary/parliamentary_constituencies.geojson';
 
@@ -616,7 +614,6 @@
         }).addTo(pcLayer);
       }).catch(err => console.error('PC Load Failure', err));
 
-    // 2. Load ALL Vidhan Sabha Seats (CYAN GRID) via Failover CDN
     var acPrimary = 'https://cdn.jsdelivr.net/gh/datameet/maps@master/Assembly/assembly_constituencies.geojson';
     var acFallback = 'https://raw.githubusercontent.com/datameet/maps/master/Assembly/assembly_constituencies.geojson';
 
@@ -640,7 +637,6 @@
         }).addTo(acLayer);
       }).catch(err => console.log('AC Load Failure', err));
 
-    // TopoJSON Failover Loader
     function loadTopoJSON(primaryUrl, fallbackUrl, targetLayer, styleOptions, nameProperty) {
       styleOptions.pane = 'adminBoundaryPane';
       fetchGeoData(primaryUrl, fallbackUrl)
@@ -662,7 +658,6 @@
         }).catch(err => console.error('TopoJSON load error', err));
     }
 
-    // High-Contrast Administrative Outlines
     var statePrimary = 'https://cdn.jsdelivr.net/gh/datameet/maps@master/States/Admin2.topo.json';
     var stateFallback = 'https://raw.githubusercontent.com/datameet/maps/master/States/Admin2.topo.json';
     loadTopoJSON(statePrimary, stateFallback, stateLayer, { color: '#0051FF', weight: 2.8, dashArray: '6, 6', fillOpacity: 0.02 }, 'STNAME');
@@ -681,7 +676,6 @@
       map.flyTo([parseFloat(coords[0]), parseFloat(coords[1])], parseInt(coords[2]), { duration: 0.8 });
     }
 
-    // Fast Search
     function searchPlace() {
       var query = document.getElementById('searchInput').value;
       if (!query) return;
@@ -718,7 +712,6 @@
 
     function handleSearchKey(e) { if (e.key === 'Enter') searchPlace(); }
 
-    // Startup Loaders
     loadSavedPinsFromMemory();
     checkUrlForSharedPin();
   </script>
